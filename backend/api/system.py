@@ -1,7 +1,10 @@
-"""System status endpoints (read-only). Access will be restricted to SYSTEM_ADMIN once DB-backed RBAC lands."""
+"""System status endpoints (read-only, SYSTEM_ADMIN)."""
 import os
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
+
+from backend.core.auth_middleware import require_permission
+from backend.core.rbac import Permission
 
 from backend.db.conn import connect
 from backend.db.ingest import TABLES
@@ -10,8 +13,8 @@ router = APIRouter(prefix="/api/v1/system", tags=["system"])
 
 
 @router.get("/db-status")
-def db_status():
-    """Migration state, latest dataset import and per-table row counts, straight from the database."""
+def db_status(user=Depends(require_permission(Permission.VIEW_SYSTEM_HEALTH))):
+    """Migration state, latest dataset import and per-table row counts, straight from the database. SYSTEM_ADMIN only."""
     if not os.getenv("DATABASE_URL"):
         raise HTTPException(503, "DATABASE_URL is not configured")
     try:

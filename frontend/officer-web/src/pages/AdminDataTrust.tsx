@@ -1,19 +1,45 @@
-export default function AdminDataTrust(){
+import { useEffect, useState } from 'react';
+import { api } from '../api/client';
+import PortalHome from './PortalHome';
+
+interface Status {
+  migrations: string[]; total_rows: number; row_counts: Record<string, number>;
+  latest_import: null | {
+    import_id: string; dataset: string; version: string; status: string; total_rows: number;
+    checksum: string; imported_by: string; imported_at: string; checks_total: number; checks_failed: number;
+  };
+  cycles: { cycle: string; state: string }[];
+}
+
+export default function AdminDataTrust() {
+  const [s, setS] = useState<Status | null>(null);
+  const [err, setErr] = useState('');
+  useEffect(() => { api<Status>('/api/v1/system/db-status').then(setS).catch(e => setErr(e.message)); }, []);
+  const imp = s?.latest_import;
   return (
-    <div style={{maxWidth:1280, margin:'0 auto', padding:16}}>
-      <h2>System Admin — Data Trust Centre — IMPORT → SCHEMA → REFERENTIAL → BUSINESS → QUALITY → APPROVE → ACTIVE</h2>
-      <div style={{display:'flex', gap:6, marginTop:8}}>
-        {['IMPORT','SCHEMA','REFERENTIAL','BUSINESS','QUALITY','APPROVE','ACTIVE'].map((s,i)=>(
-          <span key={s} style={{padding:'6px 8px', borderRadius:20, fontSize:11, background: i<5?'#16a34a':'#e5e7eb', color: i<5?'#fff':'#334155'}}>{i<5?'✓':'○'} {s}</span>
-        ))}
+    <>
+      <PortalHome title="System Admin" next="Data trust: live state read from the database." />
+      <div style={{ maxWidth: 820, margin: '0 auto 40px', padding: '0 16px', fontSize: 14 }}>
+        {err && <div role="alert" style={{ color: '#b91c1c' }}>{err}</div>}
+        {!s && !err && <p>Loading…</p>}
+        {s && (
+          <>
+            <h2 style={{ fontSize: 16 }}>Active dataset</h2>
+            {imp ? (
+              <p>{imp.dataset} v{imp.version} — <strong>{imp.status}</strong> — {imp.total_rows.toLocaleString()} rows — {imp.checks_total - imp.checks_failed}/{imp.checks_total} checks passed<br />
+                <small>import {imp.import_id} by {imp.imported_by} at {imp.imported_at} · sha256 {imp.checksum.slice(0, 16)}…</small></p>
+            ) : <p>No dataset imported yet.</p>}
+            <h2 style={{ fontSize: 16 }}>Migrations</h2>
+            <p>{s.migrations.join(', ')}</p>
+            <h2 style={{ fontSize: 16 }}>Rows per table</h2>
+            <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+              <tbody>{Object.entries(s.row_counts).map(([t, n]) => (
+                <tr key={t} style={{ borderBottom: '1px solid #e2e8f0' }}><td style={{ padding: 4 }}>{t}</td><td style={{ textAlign: 'right' }}>{n.toLocaleString()}</td></tr>
+              ))}</tbody>
+            </table>
+          </>
+        )}
       </div>
-      <div style={{marginTop:12, border:'1px solid #cbd5e1', padding:12, borderRadius:6, fontSize:12}}>
-        <strong>Dataset PDS_DEMANDSYNC v1.0.0 — 23 files — 83,763 rows — Seed 20260921</strong>
-        <div style={{marginTop:6}}>Validation: 57/57 PASS — 0 orphans — 0 negative quantities — 0 broken manifest totals — 0 hash mismatches — All 7 scenarios PASS (READY, FPS_CAPACITY, WAREHOUSE_STOCK, VEHICLE_CAPACITY, ENTITLEMENT_FLOOR, DELIVERY_VARIANCE, MISSING_TELEMETRY)</div>
-        <div style={{marginTop:6, background:'#eff6ff', padding:8, borderRadius:4}}><strong>AI DATA QUALITY ASSISTANT:</strong> "3.2% telemetry unavailable — not data error, real gap for UI to display Live location unavailable. 14 FPS demand abrupt changes require review." — Officer decides approval.</div>
-        <button style={{marginTop:8, padding:'8px 12px', background:'#0f2a44', color:'#fff', border:'none', borderRadius:4}}>APPROVE DATASET ACTIVE</button>
-      </div>
-      <div style={{marginTop:10, fontSize:11, color:'#64748b'}}>Source: data/07_generated/data_quality_report.csv — no mock frontend arrays, every number from PostgreSQL</div>
-    </div>
-  )
+    </>
+  );
 }

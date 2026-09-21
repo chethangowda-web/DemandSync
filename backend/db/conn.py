@@ -17,3 +17,27 @@ def connect(url: str | None = None, **kwargs) -> psycopg.Connection:
     conn.execute("SET TIME ZONE 'UTC'")
     conn.commit()
     return conn
+
+
+def get_db():
+    """FastAPI dependency: one connection per request; commits on success, rolls back on error.
+
+    Code that must persist state before raising an HTTPException (failed OTP attempts, lockout counters)
+    calls conn.commit() itself first.
+    """
+    from fastapi import HTTPException  # local import keeps this module usable from CLI scripts
+
+    try:
+        conn = connect()
+    except RuntimeError:  # DATABASE_URL not set
+        raise HTTPException(503, "Database is not configured")
+    except psycopg.OperationalError:
+        raise HTTPException(503, "Database unavailable")
+    try:
+        yield conn
+        conn.commit()
+    except BaseException:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()

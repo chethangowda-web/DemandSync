@@ -8,7 +8,7 @@ class ApiService {
   static Future<void> saveToken(String t) async => (await SharedPreferences.getInstance()).setString('token', t);
 
   static Future<Map<String,dynamic>> login(String rc, String mobile) async {
-    final r = await http.post(Uri.parse('$baseUrl/api/v1/auth/beneficiary/login'), headers:{'Content-Type':'application/json'}, body: jsonEncode({'ration_card_id':rc,'registered_mobile':mobile}));
+    final r = await http.post(Uri.parse('$baseUrl/api/v1/auth/beneficiary/request-otp'), headers:{'Content-Type':'application/json'}, body: jsonEncode({'ration_card_id':rc,'registered_mobile':mobile}));
     if(r.statusCode!=200) throw Exception(jsonDecode(r.body)['detail'] ?? r.body);
     return jsonDecode(r.body);
   }

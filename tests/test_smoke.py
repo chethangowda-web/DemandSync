@@ -16,28 +16,30 @@ def test_dataset_manifest_loads_from_repo_data():
     assert r.json()["row_counts"]["beneficiaries_master.csv"] == 10000
 
 
-def test_protected_route_requires_token():
-    assert client.get("/api/v1/auth/me").status_code == 401
-
-
-def test_beneficiary_otp_login_and_entitlement():
-    rc, mobile = "RC2023100000", "9000060000"  # BEN-000001 from data/01_master
-    r = client.post("/api/v1/auth/beneficiary/request-otp", json={"ration_card_id": rc, "registered_mobile": mobile})
-    assert r.status_code == 200
-    otp = r.json()["dev_otp"]
-    r = client.post("/api/v1/auth/beneficiary/verify-otp", json={"ration_card_id": rc, "otp": otp})
-    assert r.status_code == 200
-    h = {"Authorization": f"Bearer {r.json()['access_token']}"}
-    assert client.get("/api/v1/auth/me", headers=h).json()["role"] == "BENEFICIARY"
-    ent = client.get("/api/v1/beneficiaries/me/entitlement", headers=h).json()
-    assert ent["total_entitlement_kg"] == 35 and ent["rice_entitlement_kg"] + ent["wheat_entitlement_kg"] == 35
-
-
-def test_wrong_mobile_rejected():
-    r = client.post("/api/v1/auth/beneficiary/request-otp", json={"ration_card_id": "RC2023100000", "registered_mobile": "0000000000"})
-    assert r.status_code == 401
-
-
-def test_db_status_reports_unconfigured_database(monkeypatch):
+def test_protected_routes_report_missing_database_not_a_fake_answer(monkeypatch):
     monkeypatch.delenv("DATABASE_URL", raising=False)
+    assert client.get("/api/v1/auth/me").status_code == 503
     assert client.get("/api/v1/system/db-status").status_code == 503
+
+
+def test_officer_web_is_served_with_spa_fallback_and_no_path_traversal(tmp_path, monkeypatch):
+    app_dir = tmp_path / "officer"
+    (app_dir / "assets").mkdir(parents=True)
+    (app_dir / "index.html").write_text("<html>SPA</html>")
+    (app_dir / "assets" / "x.js").write_text("console.log(1)")
+    (tmp_path / "secret.txt").write_text("TOP SECRET")
+    monkeypatch.setenv("OFFICER_WEB_DIR", str(app_dir))
+    assert "SPA" in client.get("/officer/").text
+    assert "SPA" in client.get("/officer/dso").text  # deep link -> index.html
+    js = client.get("/officer/assets/x.js")
+    assert js.text == "console.log(1)" and "immutable" in js.headers["cache-control"]
+    for evil in ("/officer/%2e%2e/secret.txt", "/officer/..%2fsecret.txt", "/officer/assets/..%2f..%2fsecret.txt"):
+        assert "TOP SECRET" not in client.get(evil).text, evil
+    assert client.get("/officer", follow_redirects=False).status_code in (307, 308)
+
+
+def test_officer_web_absent_is_a_clean_404(monkeypatch, tmp_path):
+    from backend import web
+    monkeypatch.setattr(web, "REPO_ROOT", tmp_path)
+    monkeypatch.delenv("OFFICER_WEB_DIR", raising=False)
+    assert client.get("/officer/").status_code == 404

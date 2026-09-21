@@ -4,16 +4,11 @@ from typing import Optional
 import pandas as pd, hashlib, json, random
 from pathlib import Path
 from datetime import datetime, timedelta
-from jose import JWTError, ExpiredSignatureError
-from backend.core.otp import otp_service
-from backend.core.security import JWT_SECRET, JWT_ALGORITHM, decode_token
+from backend.core.auth_middleware import require_role
+from backend.core.rbac import Role
 
 router = APIRouter(prefix="/api/v1", tags=["beneficiary"])
 from backend.core.config import DATA_DIR as DATA
-SECRET=JWT_SECRET
-JWT_ALG=JWT_ALGORITHM
-# dev OTP store — now delegates to otp_service (no hardcoded universal OTP)
-_otp_store={}
 # load datasets lazily
 _ben = None; _fps=None; _intent=None; _epos=None; _cycles=None; _grv=None; _man=None; _del=None; _tel=None
 
@@ -38,26 +33,12 @@ def get_beneficiary_by_rc(rc):
     row=_ben[_ben.ration_card_id==rc]
     return row.iloc[0].to_dict() if not row.empty else None
 
-def auth_beneficiary(authorization: Optional[str]=Header(None)):
-    if not authorization or not authorization.startswith("Bearer "): raise HTTPException(401,"Missing token")
-    token=authorization.split(" ",1)[1]
-    try:
-        payload=decode_token(token)
-        if payload.get("role")!="BENEFICIARY": raise HTTPException(403,"Not beneficiary")
-        ben=get_beneficiary_by_rc(payload["sub"])
-        if not ben: raise HTTPException(401,"Beneficiary not found")
-        return ben
-    except ExpiredSignatureError: raise HTTPException(401,"Token expired")
-    except HTTPException: raise
-    except JWTError: raise HTTPException(401,"Invalid token")
-
-class LoginRequest(BaseModel):
-    ration_card_id: str
-    registered_mobile: str
-
-class OtpVerifyRequest(BaseModel):
-    ration_card_id: str
-    otp: str
+def auth_beneficiary(user=Depends(require_role(Role.BENEFICIARY))):
+    """Identity and status are verified against the database by the unified auth layer.
+    The remaining profile data still comes from the CSV-backed frames until Phase 1 moves it to the database."""
+    ben=get_beneficiary_by_rc(user["ration_card_id"])
+    if not ben: raise HTTPException(401,"Beneficiary not found")
+    return ben
 
 class IntentRequest(BaseModel):
     fps_id: str
@@ -74,20 +55,6 @@ class GrievanceRequest(BaseModel):
 
 class AssistantRequest(BaseModel):
     question: str
-
-@router.post("/auth/beneficiary/login")
-def login(req: LoginRequest):
-    """Legacy endpoint — delegates to unified auth (kept for backward compat). Now uses OTP abstraction (no universal 123456)."""
-    from backend.api.auth import beneficiary_request_otp
-    from backend.api.auth import BeneficiaryRequestOtp as NewReq
-    return beneficiary_request_otp(NewReq(ration_card_id=req.ration_card_id, registered_mobile=req.registered_mobile))
-
-@router.post("/auth/beneficiary/verify-otp")
-def verify_otp(req: OtpVerifyRequest):
-    """Legacy endpoint — delegates to unified auth."""
-    from backend.api.auth import beneficiary_verify_otp
-    from backend.api.auth import BeneficiaryVerifyOtp as NewVerify
-    return beneficiary_verify_otp(NewVerify(ration_card_id=req.ration_card_id, otp=req.otp))
 
 @router.get("/beneficiaries/me")
 def me(ben=Depends(auth_beneficiary)):

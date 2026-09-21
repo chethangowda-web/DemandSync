@@ -1,30 +1,47 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Link, Navigate, Route, Routes } from 'react-router-dom';
+import { AuthProvider, useAuth } from './auth/AuthContext';
+import RequireRole from './auth/RequireRole';
+import Login from './pages/Login';
+import ChangePassword from './pages/ChangePassword';
 import DSOControlCentre from './pages/DSOControlCentre';
 import AdminDataTrust from './pages/AdminDataTrust';
 import InspectorPortal from './pages/InspectorPortal';
 import FPSPortal from './pages/FPSPortal';
 import AuditorPortal from './pages/AuditorPortal';
-export default function App(){
+
+function Shell() {
+  const { user, logout, loading } = useAuth();
   return (
-    <BrowserRouter>
-      <nav style={{display:'flex', gap:10, padding:10, background:'#0f2a44', color:'#fff'}}>
-        <Link to="/" style={{color:'#fff'}}>DSO Control Centre</Link>
-        <Link to="/admin" style={{color:'#fff'}}>Admin Data Trust</Link>
-        <Link to="/fps" style={{color:'#fff'}}>FPS</Link>
-        <Link to="/inspector" style={{color:'#fff'}}>Inspector</Link>
-        <Link to="/auditor" style={{color:'#fff'}}>Auditor</Link>
-        <span style={{marginLeft:'auto', fontSize:11, opacity:0.8}}>Same FastAPI + PostgreSQL + 83k real rows — no mock arrays</span>
+    <>
+      <nav style={{ display: 'flex', gap: 12, padding: 10, background: '#0f2a44', color: '#fff', alignItems: 'center' }}>
+        <strong>DemandSYNC</strong>
+        {user && (
+          <>
+            <span style={{ opacity: 0.8, fontSize: 13 }}>{user.role}</span>
+            <span style={{ marginLeft: 'auto', fontSize: 13 }}>{user.name}</span>
+            <Link to="/change-password" style={{ color: '#fff', fontSize: 13 }}>Change password</Link>
+            <button onClick={logout} style={{ background: 'transparent', color: '#fff', border: '1px solid #fff', borderRadius: 4, cursor: 'pointer' }}>Sign out</button>
+          </>
+        )}
       </nav>
       <Routes>
-        <Route path="/" element={<DSOControlCentre/>} />
-        <Route path="/admin" element={<AdminDataTrust/>} />
-        <Route path="/fps" element={<FPSPortal/>} />
-        <Route path="/inspector" element={<InspectorPortal/>} />
-        <Route path="/auditor" element={<AuditorPortal/>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/dso" element={<RequireRole portal="/dso"><DSOControlCentre /></RequireRole>} />
+        <Route path="/admin" element={<RequireRole portal="/admin"><AdminDataTrust /></RequireRole>} />
+        <Route path="/fps" element={<RequireRole portal="/fps"><FPSPortal /></RequireRole>} />
+        <Route path="/inspector" element={<RequireRole portal="/inspector"><InspectorPortal /></RequireRole>} />
+        <Route path="/auditor" element={<RequireRole portal="/auditor"><AuditorPortal /></RequireRole>} />
+        <Route path="*" element={loading ? null : <Navigate to={user ? user.portal : '/login'} replace />} />
       </Routes>
-      <div style={{textAlign:'center', fontSize:11, color:'#64748b', padding:10, borderTop:'1px solid #e2e8f0', marginTop:20}}>
-        DemandSYNC — AI PREDICTS → RULES VALIDATE → OPTIMIZATION ALLOCATES → HUMAN AUTHORIZES → SYSTEM VERIFIES → AUDIT
-      </div>
+    </>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+      <AuthProvider><Shell /></AuthProvider>
     </BrowserRouter>
-  )
+  );
 }

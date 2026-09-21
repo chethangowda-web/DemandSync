@@ -1,14 +1,30 @@
-// Real backend client — no mock arrays. Every call hits FastAPI + PostgreSQL.
-const BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
-function authHeader(){ const t=localStorage.getItem('token'); return t?{Authorization:`Bearer ${t}`} : {}; }
-export async function api(path:string, opts:RequestInit={}){
-  const res = await fetch(`${BASE}${path}`, {headers:{'Content-Type':'application/json', ...authHeader(), ...(opts.headers as any)}, ...opts});
-  if(!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+// Same-origin by default (the API serves this app in production; Vite proxies /api in dev).
+// Every value shown in the UI comes from the API; nothing here is mocked.
+const BASE: string = import.meta.env.VITE_API_BASE || '';
+const TOKEN_KEY = 'demandsync.token';
+
+export class ApiError extends Error {
+  constructor(public status: number, message: string) { super(message); }
+}
+
+export const getToken = (): string | null => { try { return sessionStorage.getItem(TOKEN_KEY); } catch { return null; } };
+export const setToken = (t: string | null) => {
+  try { t ? sessionStorage.setItem(TOKEN_KEY, t) : sessionStorage.removeItem(TOKEN_KEY); } catch { /* storage unavailable */ }
+};
+
+export async function api<T = any>(path: string, opts: RequestInit = {}): Promise<T> {
+  const token = getToken();
+  const res = await fetch(`${BASE}${path}`, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(opts.headers as any) },
+  });
+  if (!res.ok) {
+    let detail = res.statusText;
+    try { const j = await res.json(); detail = typeof j.detail === 'string' ? j.detail : JSON.stringify(j.detail); } catch { /* not json */ }
+    throw new ApiError(res.status, detail || `Request failed (${res.status})`);
+  }
   return res.json();
 }
-export const getManifest = (id:string)=> api(`/api/v1/manifests/${id}`);
-export const getForecast = (cycle:string, fps:string)=> api(`/api/v1/ai/forecast?cycle=${cycle}&fps_id=${fps}`);
-export const getCycle = (cycle:string)=> api(`/api/v1/cycles/${cycle}`);
-export const postLock = (cycle:string)=> api(`/api/v1/cycles/${cycle}/choice-window/close`, {method:'POST'});
-export const getTelemetry = (vehicle:string)=> api(`/api/v1/telemetry?vehicle_id=${vehicle}`);
-// If telemetry missing, UI shows "Live location unavailable" — never fake GPS
+
+export const post = <T = any>(path: string, body?: unknown) =>
+  api<T>(path, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) });

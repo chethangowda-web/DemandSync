@@ -263,8 +263,13 @@ def test_database_rejects_second_live_intent_and_entitlement_mismatch(loaded):
 def test_db_status_endpoint_reflects_real_database(loaded, monkeypatch):
     from fastapi.testclient import TestClient
     from backend.main import app
+    from backend.core.security import create_access_token
     monkeypatch.setenv("DATABASE_URL", loaded)
-    r = TestClient(app).get("/api/v1/system/db-status")
+    with connect(loaded) as c:
+        admin = c.execute("SELECT officer_id FROM officers WHERE role = 'ADMIN' ORDER BY officer_id LIMIT 1").fetchone()[0]
+    client = TestClient(app)
+    assert client.get("/api/v1/system/db-status").status_code == 401  # not public any more
+    r = client.get("/api/v1/system/db-status", headers={"Authorization": "Bearer " + create_access_token(admin, "SYSTEM_ADMIN")})
     assert r.status_code == 200
     body = r.json()
     assert body["latest_import"]["status"] == "ACTIVE" and body["latest_import"]["checks_failed"] == 0
@@ -285,3 +290,27 @@ def test_if_empty_skips_when_only_import_history_exists(db_url, data_copy):
     edit(data_copy, "01_master/fps_master.csv", lambda d: d.__setitem__("capacity_kg", [""] + list(d.capacity_kg[1:])))
     assert import_dataset(db_url, data_dir=data_copy)["status"] == "REJECTED"  # leaves a REJECTED history row
     assert import_dataset(db_url, if_empty=True)["status"] == "SKIPPED"  # not blindly re-seeded over history
+
+
+# ------------------------------------------------------------------ audit hash chain
+
+def test_audit_chain_detects_a_forged_event(db_url):
+    from backend.core.audit import verify_chain, write_audit
+    for i in range(3):
+        write_audit(f"u{i}", "TEST", "ACTION", "SUCCESS", url=db_url)
+    assert verify_chain(db_url) == {"checked": 3, "broken": [], "intact": True}
+    with connect(db_url) as c:  # inserting is allowed (append-only), but a forged hash is detectable
+        c.execute("""INSERT INTO audit_events (audit_event_id, actor_user_id, actor_role, action, entity_type, entity_id,
+                     result, timestamp, hash) VALUES ('AUD-FORGED000001','x','x','A','U','x','SUCCESS', now(), 'bad')""")
+        c.commit()
+    r = verify_chain(db_url)
+    assert not r["intact"] and r["broken"] == ["AUD-FORGED000001"]
+
+
+def test_audit_chain_survives_concurrent_writers(db_url):
+    from concurrent.futures import ThreadPoolExecutor
+    from backend.core.audit import verify_chain, write_audit
+    with ThreadPoolExecutor(8) as pool:
+        list(pool.map(lambda i: write_audit(f"u{i}", "TEST", "PARALLEL", "SUCCESS", url=db_url), range(24)))
+    r = verify_chain(db_url)
+    assert r["checked"] == 24 and r["intact"], r

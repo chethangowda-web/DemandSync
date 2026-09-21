@@ -11,9 +11,11 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, 
 from backend.api.beneficiary import router as beneficiary_router
 from backend.api.auth import router as auth_router
 from backend.api.system import router as system_router
+from backend.web import router as web_router
 app.include_router(beneficiary_router)
 app.include_router(auth_router)
 app.include_router(system_router)
+app.include_router(web_router)
 
 @app.get("/health")
 def health():

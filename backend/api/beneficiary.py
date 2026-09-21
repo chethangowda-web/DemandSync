@@ -4,9 +4,9 @@ from typing import Optional
 import pandas as pd, hashlib, json, random
 from pathlib import Path
 from datetime import datetime, timedelta
-import jwt
+from jose import JWTError, ExpiredSignatureError
 from backend.core.otp import otp_service
-from backend.core.security import JWT_SECRET, JWT_ALGORITHM
+from backend.core.security import JWT_SECRET, JWT_ALGORITHM, decode_token
 
 router = APIRouter(prefix="/api/v1", tags=["beneficiary"])
 from backend.core.config import DATA_DIR as DATA
@@ -42,13 +42,14 @@ def auth_beneficiary(authorization: Optional[str]=Header(None)):
     if not authorization or not authorization.startswith("Bearer "): raise HTTPException(401,"Missing token")
     token=authorization.split(" ",1)[1]
     try:
-        payload=jwt.decode(token, SECRET, algorithms=["HS256"])
+        payload=decode_token(token)
         if payload.get("role")!="BENEFICIARY": raise HTTPException(403,"Not beneficiary")
         ben=get_beneficiary_by_rc(payload["sub"])
         if not ben: raise HTTPException(401,"Beneficiary not found")
         return ben
-    except jwt.ExpiredSignatureError: raise HTTPException(401,"Token expired")
-    except Exception as e: raise HTTPException(401, str(e))
+    except ExpiredSignatureError: raise HTTPException(401,"Token expired")
+    except HTTPException: raise
+    except JWTError: raise HTTPException(401,"Invalid token")
 
 class LoginRequest(BaseModel):
     ration_card_id: str

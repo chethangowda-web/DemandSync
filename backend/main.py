@@ -10,11 +10,25 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, 
 
 from backend.api.beneficiary import router as beneficiary_router
 from backend.api.auth import router as auth_router
+from backend.api.system import router as system_router
 app.include_router(beneficiary_router)
 app.include_router(auth_router)
+app.include_router(system_router)
 
 @app.get("/health")
-def health(): return {"status":"ok","phase":"1-beneficiary","db":"PostgreSQL+PostGIS","datasets":"83,763 rows validated"}
+def health():
+    """Liveness plus a real database probe (liveness stays 'ok' even if the DB is down, so the process isn't restarted needlessly)."""
+    import os
+    db = "not_configured"
+    if os.getenv("DATABASE_URL"):
+        try:
+            from backend.db.conn import connect
+            with connect() as c:
+                c.execute("SELECT 1")
+            db = "connected"
+        except Exception:
+            db = "unavailable"
+    return {"status": "ok", "database": db}
 
 @app.get("/api/v1/datasets/manifest")
 def dataset_manifest():

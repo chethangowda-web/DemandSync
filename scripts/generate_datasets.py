@@ -248,7 +248,8 @@ for cycle in CYCLES_OP:
             # force some BLOCKED scenarios
             status="APPROVED"
             if fps_id=="FPS-0037" and cycle=="2026-01" and commodity=="RICE":
-                allocated = cap_limit - 50 # will be less than requested -> BLOCKED due FPS_CAPACITY
+                allocated = cap_limit - 50 # capacity-limited allocation
+                requested = allocated + 300 # demand must exceed what capacity allows -> BLOCKED due FPS_CAPACITY (no RNG draw)
                 status="BLOCKED"
             elif wh=="WH-001" and cycle=="2026-02" and commodity=="RICE":
                 # warehouse stock shortage

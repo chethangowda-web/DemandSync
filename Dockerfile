@@ -3,6 +3,7 @@ WORKDIR /app
 COPY backend/requirements.txt backend/requirements.txt
 RUN pip install --no-cache-dir -r backend/requirements.txt
 COPY backend backend
+COPY database database
 COPY data data
 ENV DATA_DIR=/app/data
-CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "if [ -n \"$DATABASE_URL\" ]; then python -m backend.db.migrate || exit 1; fi; exec uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

@@ -7,6 +7,7 @@ client = TestClient(app)
 def test_health():
     r = client.get("/health")
     assert r.status_code == 200 and r.json()["status"] == "ok"
+    assert r.json()["database"] in ("not_configured", "connected", "unavailable")
 
 
 def test_dataset_manifest_loads_from_repo_data():
@@ -35,3 +36,8 @@ def test_beneficiary_otp_login_and_entitlement():
 def test_wrong_mobile_rejected():
     r = client.post("/api/v1/auth/beneficiary/request-otp", json={"ration_card_id": "RC2023100000", "registered_mobile": "0000000000"})
     assert r.status_code == 401
+
+
+def test_db_status_reports_unconfigured_database(monkeypatch):
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    assert client.get("/api/v1/system/db-status").status_code == 503

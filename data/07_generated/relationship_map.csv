@@ -1,0 +1,30 @@
+parent_dataset,parent_key,child_dataset,child_key,relationship_type
+fps_master,fps_id,beneficiaries_master,current_fps_id,1:N
+warehouse_master,warehouse_id,fps_master,warehouse_id,1:N
+warehouse_master,warehouse_id,vehicle_fleet,warehouse_id,1:N
+beneficiaries_master,beneficiary_id,intent_signals,beneficiary_id,1:N
+fps_master,fps_id,intent_signals,fps_id,1:N
+fps_master,fps_id,historical_demand,fps_id,1:N
+fps_master,fps_id,demand_forecast,fps_id,1:N
+fps_master,fps_id,allocations,fps_id,1:N
+warehouse_master,warehouse_id,allocations,warehouse_id,1:N
+fps_master,fps_id,inventory,location_id,1:N (FPS)
+warehouse_master,warehouse_id,inventory,location_id,1:N (WAREHOUSE)
+dispatch_manifests,manifest_id,dispatch_manifest_items,manifest_id,1:N
+fps_master,fps_id,dispatch_manifest_items,fps_id,1:N
+allocations,allocation_id,dispatch_manifest_items,allocation_id,1:1
+dispatch_manifest_items,manifest_item_id,delivery_history,manifest_item_id,1:1
+dispatch_manifests,manifest_id,delivery_history,manifest_id,1:N
+vehicle_fleet,vehicle_id,dispatch_manifests,vehicle_id,1:N
+vehicle_fleet,vehicle_id,vehicle_telemetry,vehicle_id,1:N
+dispatch_manifests,manifest_id,vehicle_telemetry,manifest_id,1:N
+dispatch_manifests,manifest_id,vehicle_routes,manifest_id,1:N
+fps_master,fps_id,vehicle_routes,fps_id,1:N
+fps_master,fps_id,inspections,fps_id,1:N
+officers_master,officer_id,inspections,inspector_id,1:N
+beneficiaries_master,beneficiary_id,epos_transactions,beneficiary_id,1:N
+fps_master,fps_id,epos_transactions,fps_id,1:N
+beneficiaries_master,beneficiary_id,grievances,beneficiary_id,1:N
+fps_master,fps_id,grievances,fps_id,1:N
+dispatch_manifests,manifest_id,exceptions,entity_id,1:N (MANIFEST)
+officers_master,officer_id,audit_events,actor_user_id,1:N

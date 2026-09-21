@@ -1,0 +1,238 @@
+dataset,column,data_type,description,nullable,primary_key,foreign_key,allowed_values,example
+beneficiaries_master.csv,beneficiary_id,str,Column beneficiary_id,NO,True,beneficiary_id->beneficiaries,,BEN-000001
+beneficiaries_master.csv,ration_card_id,str,Column ration_card_id,NO,False,,,RC2023100000
+beneficiaries_master.csv,head_of_household,str,Column head_of_household,NO,False,,,Sneha Samra
+beneficiaries_master.csv,household_size,int64,Column household_size,NO,False,,,7
+beneficiaries_master.csv,scheme_type,str,Column scheme_type,NO,False,,"PHH,AAY",AAY
+beneficiaries_master.csv,entitlement_kg,int64,Column entitlement_kg,NO,False,,,35
+beneficiaries_master.csv,rice_entitlement_kg,int64,Column rice_entitlement_kg,NO,False,,,22
+beneficiaries_master.csv,wheat_entitlement_kg,int64,Column wheat_entitlement_kg,NO,False,,,13
+beneficiaries_master.csv,current_fps_id,str,Column current_fps_id,NO,False,current_fps_id->fps,,FPS-0244
+beneficiaries_master.csv,district,str,Column district,NO,False,,,BENGALURU_URBAN
+beneficiaries_master.csv,taluk,str,Column taluk,NO,False,,,BEN-Taluk-2
+beneficiaries_master.csv,latitude,float64,Column latitude,NO,False,,,12.754197
+beneficiaries_master.csv,longitude,float64,Column longitude,NO,False,,,77.799258
+beneficiaries_master.csv,registered_mobile,str,Column registered_mobile,NO,False,,,9000060000
+beneficiaries_master.csv,status,str,Column status,NO,False,,see spec,ACTIVE
+beneficiaries_master.csv,created_at,str,Column created_at,NO,False,,,2022-09-01
+fps_master.csv,fps_id,str,Column fps_id,NO,True,,,FPS-0001
+fps_master.csv,fps_name,str,Column fps_name,NO,False,,,Jan Seva Fair Price Shop 001
+fps_master.csv,owner_id,str,Column owner_id,NO,False,,,OFF-06001
+fps_master.csv,district,str,Column district,NO,False,,,BENGALURU_URBAN
+fps_master.csv,taluk,str,Column taluk,NO,False,,,BEN-Taluk-3
+fps_master.csv,latitude,float64,Column latitude,NO,False,,,13.324897
+fps_master.csv,longitude,float64,Column longitude,NO,False,,,77.887401
+fps_master.csv,capacity_kg,int64,Column capacity_kg,NO,False,,,918
+fps_master.csv,warehouse_id,str,Column warehouse_id,NO,True,warehouse_id->warehouse,,WH-001
+fps_master.csv,status,str,Column status,NO,False,,see spec,ACTIVE
+fps_master.csv,opening_hours,str,Column opening_hours,NO,False,,,09:00-18:00
+fps_master.csv,created_at,str,Column created_at,NO,False,,,2024-08-20
+warehouse_master.csv,warehouse_id,str,Column warehouse_id,NO,True,warehouse_id->warehouse,,WH-001
+warehouse_master.csv,warehouse_name,str,Column warehouse_name,NO,False,,,Bengaluru_Urban Central Warehouse 1
+warehouse_master.csv,district,str,Column district,NO,False,,,BENGALURU_URBAN
+warehouse_master.csv,latitude,float64,Column latitude,NO,False,,,13.278607
+warehouse_master.csv,longitude,float64,Column longitude,NO,False,,,77.759931
+warehouse_master.csv,rice_stock_kg,int64,Column rice_stock_kg,NO,False,,,24295
+warehouse_master.csv,wheat_stock_kg,int64,Column wheat_stock_kg,NO,False,,,19103
+warehouse_master.csv,total_capacity_kg,int64,Column total_capacity_kg,NO,False,,,50000
+warehouse_master.csv,status,str,Column status,NO,False,,see spec,ACTIVE
+vehicle_fleet.csv,vehicle_id,str,Column vehicle_id,NO,True,,,VEH-0001
+vehicle_fleet.csv,vehicle_number,str,Column vehicle_number,NO,False,,,KA-25-IW-5040
+vehicle_fleet.csv,vehicle_type,str,Column vehicle_type,NO,False,,,HEAVY
+vehicle_fleet.csv,capacity_kg,int64,Column capacity_kg,NO,False,,,5347
+vehicle_fleet.csv,current_status,str,Column current_status,NO,False,,,AVAILABLE
+vehicle_fleet.csv,warehouse_id,str,Column warehouse_id,NO,True,warehouse_id->warehouse,,WH-001
+vehicle_fleet.csv,driver_id,str,Column driver_id,NO,False,,,DRV-0001
+vehicle_fleet.csv,latitude,float64,Column latitude,NO,False,,,13.288834
+vehicle_fleet.csv,longitude,float64,Column longitude,NO,False,,,77.77683
+vehicle_fleet.csv,availability_start,str,Column availability_start,NO,False,,,2025-01-01
+vehicle_fleet.csv,availability_end,str,Column availability_end,NO,False,,,2026-12-31
+officers_master.csv,officer_id,str,Column officer_id,NO,True,,,OFF-00001
+officers_master.csv,employee_code,str,Column employee_code,NO,False,,,EMP202100001
+officers_master.csv,name,str,Column name,NO,False,,,Balhaar Halder
+officers_master.csv,role,str,Column role,NO,False,,,DISTRICT_OFFICER
+officers_master.csv,district,str,Column district,NO,False,,,MYSURU
+officers_master.csv,phone,str,Column phone,NO,False,,,9000050997
+officers_master.csv,status,str,Column status,NO,False,,see spec,ACTIVE
+historical_demand.csv,fps_id,str,Column fps_id,NO,True,,,FPS-0001
+historical_demand.csv,cycle,str,Column cycle,NO,False,,,2025-01
+historical_demand.csv,commodity,str,Column commodity,NO,False,,"RICE,WHEAT",RICE
+historical_demand.csv,demand_kg,int64,Column demand_kg,NO,False,,,298
+historical_demand.csv,beneficiary_count,int64,Column beneficiary_count,NO,False,,,22
+historical_demand.csv,season,str,Column season,NO,False,,,RABI
+historical_demand.csv,month,int64,Column month,NO,False,,,1
+historical_demand.csv,year,int64,Column year,NO,False,,,2025
+historical_demand.csv,previous_demand_kg,int64,Column previous_demand_kg,NO,False,,,278
+historical_demand.csv,trend_factor,float64,Column trend_factor,NO,False,,,0.002
+historical_demand.csv,season_factor,float64,Column season_factor,NO,False,,,1.0
+historical_demand.csv,stockout_flag,int64,Column stockout_flag,NO,False,,,0
+intent_signals.csv,intent_id,str,Column intent_id,NO,True,,,INT-0000001
+intent_signals.csv,beneficiary_id,str,Column beneficiary_id,NO,True,beneficiary_id->beneficiaries,,BEN-009567
+intent_signals.csv,fps_id,str,Column fps_id,NO,True,,,FPS-0126
+intent_signals.csv,cycle,str,Column cycle,NO,False,,,2026-01
+intent_signals.csv,rice_quantity_kg,int64,Column rice_quantity_kg,NO,False,,,7
+intent_signals.csv,wheat_quantity_kg,int64,Column wheat_quantity_kg,NO,False,,,4
+intent_signals.csv,total_quantity_kg,int64,Column total_quantity_kg,NO,False,,,11
+intent_signals.csv,collection_mode,str,Column collection_mode,NO,False,,,AUTHORIZED_PERSON
+intent_signals.csv,submitted_at,str,Column submitted_at,NO,False,,,2026-01-14T17:30:00
+intent_signals.csv,status,str,Column status,NO,False,,see spec,SUBMITTED
+demand_forecast.csv,forecast_id,str,Column forecast_id,NO,True,,,FC-0000001
+demand_forecast.csv,fps_id,str,Column fps_id,NO,True,,,FPS-0001
+demand_forecast.csv,cycle,str,Column cycle,NO,False,,,2026-01
+demand_forecast.csv,commodity,str,Column commodity,NO,False,,"RICE,WHEAT",RICE
+demand_forecast.csv,baseline_demand_kg,int64,Column baseline_demand_kg,NO,False,,,290
+demand_forecast.csv,intent_demand_kg,int64,Column intent_demand_kg,NO,False,,,207
+demand_forecast.csv,forecast_demand_kg,int64,Column forecast_demand_kg,NO,False,,,239
+demand_forecast.csv,model_version,str,Column model_version,NO,False,,,xgb-v1.0
+demand_forecast.csv,prediction_generated_at,str,Column prediction_generated_at,NO,False,,,2025-12-28T10:00:00
+demand_forecast.csv,training_dataset_version,str,Column training_dataset_version,NO,False,,,hist-v1-202512
+demand_forecast.csv,prediction_horizon,str,Column prediction_horizon,NO,False,,,30d
+allocations.csv,allocation_id,str,Column allocation_id,NO,True,,,ALLOC-0000001
+allocations.csv,cycle,str,Column cycle,NO,False,,,2026-01
+allocations.csv,fps_id,str,Column fps_id,NO,True,,,FPS-0001
+allocations.csv,commodity,str,Column commodity,NO,False,,"RICE,WHEAT",RICE
+allocations.csv,requested_kg,int64,Column requested_kg,NO,False,,,234
+allocations.csv,allocated_kg,int64,Column allocated_kg,NO,False,,,234
+allocations.csv,warehouse_id,str,Column warehouse_id,NO,True,warehouse_id->warehouse,,WH-001
+allocations.csv,status,str,Column status,NO,False,,see spec,APPROVED
+allocations.csv,source,str,Column source,NO,False,,,SYSTEM
+allocations.csv,approved_by,str,Column approved_by,NO,False,,,OFF-00001
+allocations.csv,approved_at,str,Column approved_at,NO,False,,,2025-12-29T11:00:00
+inventory.csv,inventory_id,str,Column inventory_id,NO,True,,,INV-0000001
+inventory.csv,location_type,str,Column location_type,NO,False,,,WAREHOUSE
+inventory.csv,location_id,str,Column location_id,NO,False,,,WH-001
+inventory.csv,commodity,str,Column commodity,NO,False,,"RICE,WHEAT",RICE
+inventory.csv,opening_stock_kg,int64,Column opening_stock_kg,NO,False,,,23226
+inventory.csv,received_kg,int64,Column received_kg,NO,False,,,5534
+inventory.csv,dispatched_kg,int64,Column dispatched_kg,NO,False,,,0
+inventory.csv,distributed_kg,int64,Column distributed_kg,NO,False,,,0
+inventory.csv,closing_stock_kg,int64,Column closing_stock_kg,NO,False,,,28760
+inventory.csv,cycle,str,Column cycle,NO,False,,,2025-10
+delivery_history.csv,delivery_id,str,Column delivery_id,NO,True,,,DEL-0000001
+delivery_history.csv,manifest_id,str,Column manifest_id,NO,True,,,MAN-000001
+delivery_history.csv,manifest_item_id,str,Column manifest_item_id,NO,True,,,MI-0000001
+delivery_history.csv,fps_id,str,Column fps_id,NO,True,,,FPS-0401
+delivery_history.csv,vehicle_id,str,Column vehicle_id,NO,True,,,VEH-0101
+delivery_history.csv,planned_kg,int64,Column planned_kg,NO,False,,,216
+delivery_history.csv,delivered_kg,int64,Column delivered_kg,NO,False,,,204
+delivery_history.csv,delivery_date,str,Column delivery_date,NO,False,,,2026-01-09
+delivery_history.csv,rice_kg,int64,Column rice_kg,NO,False,,,204
+delivery_history.csv,wheat_kg,int64,Column wheat_kg,NO,False,,,0
+delivery_history.csv,status,str,Column status,NO,False,,see spec,REJECTED
+delivery_history.csv,verified_by,str,Column verified_by,NO,False,,,OFF-00009
+epos_transactions.csv,transaction_id,str,Column transaction_id,NO,True,,,EPOS-00000001
+epos_transactions.csv,beneficiary_id,str,Column beneficiary_id,NO,True,beneficiary_id->beneficiaries,,BEN-007743
+epos_transactions.csv,fps_id,str,Column fps_id,NO,True,,,FPS-0115
+epos_transactions.csv,cycle,str,Column cycle,NO,False,,,2026-01
+epos_transactions.csv,commodity,str,Column commodity,NO,False,,"RICE,WHEAT",RICE
+epos_transactions.csv,quantity_kg,int64,Column quantity_kg,NO,False,,,10
+epos_transactions.csv,transaction_time,str,Column transaction_time,NO,False,,,2026-01-17T16:00:00
+epos_transactions.csv,status,str,Column status,NO,False,,see spec,SUCCESS
+epos_transactions.csv,receipt_number,str,Column receipt_number,NO,False,,,RCT922536
+dispatch_manifests.csv,manifest_id,str,Column manifest_id,NO,True,,,MAN-000001
+dispatch_manifests.csv,cycle,str,Column cycle,NO,False,,,2026-01
+dispatch_manifests.csv,warehouse_id,str,Column warehouse_id,NO,True,warehouse_id->warehouse,,WH-001
+dispatch_manifests.csv,vehicle_id,str,Column vehicle_id,NO,True,,,VEH-0101
+dispatch_manifests.csv,manifest_status,str,Column manifest_status,NO,False,,see spec,LOCKED
+dispatch_manifests.csv,total_kg,int64,Column total_kg,NO,False,,,1776
+dispatch_manifests.csv,route_distance_km,float64,Column route_distance_km,NO,False,,,137.09
+dispatch_manifests.csv,route_duration_min,int64,Column route_duration_min,NO,False,,,301
+dispatch_manifests.csv,constraint_status,str,Column constraint_status,NO,False,,see spec,READY
+dispatch_manifests.csv,created_by,str,Column created_by,NO,False,,,OFF-00001
+dispatch_manifests.csv,created_at,str,Column created_at,NO,False,,,2026-01-05T10:00:00
+dispatch_manifests.csv,locked_by,str,Column locked_by,NO,False,,,OFF-00001
+dispatch_manifests.csv,locked_at,str,Column locked_at,NO,False,,,2026-01-06T14:00:00
+dispatch_manifests.csv,sha256_hash,str,Column sha256_hash,NO,False,,,517b60c7ff3d3825f4e3df45d38b06464afed117867294ae5a80a6415eaa
+dispatch_manifests.csv,qr_payload,str,Column qr_payload,NO,False,,,MAN-000001|517b60c7ff3d3825
+dispatch_manifest_items.csv,manifest_item_id,str,Column manifest_item_id,NO,True,,,MI-0000001
+dispatch_manifest_items.csv,manifest_id,str,Column manifest_id,NO,True,,,MAN-000001
+dispatch_manifest_items.csv,fps_id,str,Column fps_id,NO,True,,,FPS-0401
+dispatch_manifest_items.csv,commodity,str,Column commodity,NO,False,,"RICE,WHEAT",RICE
+dispatch_manifest_items.csv,planned_kg,int64,Column planned_kg,NO,False,,,216
+dispatch_manifest_items.csv,sequence_number,int64,Column sequence_number,NO,False,,,1
+dispatch_manifest_items.csv,allocation_id,str,Column allocation_id,NO,True,,,ALLOC-0000801
+vehicle_telemetry.csv,telemetry_id,str,Column telemetry_id,NO,True,,,TEL-00000001
+vehicle_telemetry.csv,vehicle_id,str,Column vehicle_id,NO,True,,,VEH-0101
+vehicle_telemetry.csv,timestamp,str,Column timestamp,NO,False,,,2026-01-05T12:00:00
+vehicle_telemetry.csv,latitude,float64,Column latitude,NO,False,,,13.278607
+vehicle_telemetry.csv,longitude,float64,Column longitude,NO,False,,,77.759931
+vehicle_telemetry.csv,speed_kmph,int64,Column speed_kmph,NO,False,,,0
+vehicle_telemetry.csv,status,str,Column status,NO,False,,see spec,IDLE
+vehicle_telemetry.csv,manifest_id,str,Column manifest_id,NO,True,,,MAN-000001
+vehicle_routes.csv,route_id,str,Column route_id,NO,True,,,RT-0000001
+vehicle_routes.csv,manifest_id,str,Column manifest_id,NO,True,,,MAN-000001
+vehicle_routes.csv,vehicle_id,str,Column vehicle_id,NO,True,,,VEH-0101
+vehicle_routes.csv,warehouse_id,str,Column warehouse_id,NO,True,warehouse_id->warehouse,,WH-001
+vehicle_routes.csv,stop_sequence,int64,Column stop_sequence,NO,False,,,1
+vehicle_routes.csv,fps_id,str,Column fps_id,NO,True,,,FPS-0401
+vehicle_routes.csv,latitude,float64,Column latitude,NO,False,,,13.154594
+vehicle_routes.csv,longitude,float64,Column longitude,NO,False,,,77.580855
+vehicle_routes.csv,distance_from_previous_km,float64,Column distance_from_previous_km,NO,False,,,23.79
+vehicle_routes.csv,eta_minutes,int64,Column eta_minutes,NO,False,,,52
+vehicle_routes.csv,route_status,str,Column route_status,NO,False,,,PLANNED
+inspections.csv,inspection_id,str,Column inspection_id,NO,True,,,INSP-000001
+inspections.csv,fps_id,str,Column fps_id,NO,True,,,FPS-0535
+inspections.csv,inspector_id,str,Column inspector_id,NO,False,,,OFF-00007
+inspections.csv,inspection_date,str,Column inspection_date,NO,False,,,2026-01-29
+inspections.csv,stock_expected_kg,int64,Column stock_expected_kg,NO,False,,,1939
+inspections.csv,stock_observed_kg,int64,Column stock_observed_kg,NO,False,,,1907
+inspections.csv,stock_variance_kg,int64,Column stock_variance_kg,NO,False,,,-32
+inspections.csv,weighing_accuracy,float64,Column weighing_accuracy,NO,False,,,0.98
+inspections.csv,moisture_status,str,Column moisture_status,NO,False,,,LOW
+inspections.csv,shop_condition,str,Column shop_condition,NO,False,,,GOOD
+inspections.csv,stock_register_verified,str,Column stock_register_verified,NO,False,,,YES
+inspections.csv,epos_verified,str,Column epos_verified,NO,False,,,YES
+inspections.csv,finding,str,Column finding,NO,False,,,NORMAL
+inspections.csv,status,str,Column status,NO,False,,see spec,SUBMITTED
+inspections.csv,evidence_reference,str,Column evidence_reference,NO,False,,,EVID-1831
+inspections.csv,sealed_hash,str,Column sealed_hash,NO,False,,,5ff322a77d15039ab4446a449319c833919fb7d2d6d62f5716273175bace
+grievances.csv,grievance_id,str,Column grievance_id,NO,True,,,GRV-000001
+grievances.csv,beneficiary_id,str,Column beneficiary_id,NO,True,beneficiary_id->beneficiaries,,BEN-002812
+grievances.csv,fps_id,str,Column fps_id,NO,True,,,FPS-0327
+grievances.csv,category,str,Column category,NO,False,,,TRANSACTION_FAILURE
+grievances.csv,description,str,Column description,NO,False,,,TRANSACTION_FAILURE reported for RC2023102811 at FPS-0327
+grievances.csv,created_at,str,Column created_at,NO,False,,,2026-01-22T16:00:00
+grievances.csv,status,str,Column status,NO,False,,see spec,RESOLVED
+grievances.csv,resolution,str,Column resolution,NO,False,,,Resolved: TRANSACTION_FAILURE verified and adjusted
+grievances.csv,resolved_at,str,Column resolved_at,NO,False,,,2026-01-27T16:00:00
+audit_events.csv,audit_event_id,str,Column audit_event_id,NO,True,,,AUD-0000001
+audit_events.csv,cycle,str,Column cycle,NO,False,,,2026-01
+audit_events.csv,actor_user_id,str,Column actor_user_id,NO,False,,,OFF-06208
+audit_events.csv,actor_role,str,Column actor_role,NO,False,,,FPS_OWNER
+audit_events.csv,action,str,Column action,NO,False,,,PREFERENCE_SUBMITTED
+audit_events.csv,entity_type,str,Column entity_type,NO,False,,,FPS
+audit_events.csv,entity_id,str,Column entity_id,NO,False,,,MAN-000010
+audit_events.csv,reason,str,Column reason,NO,False,,,System workflow
+audit_events.csv,result,str,Column result,NO,False,,,SUCCESS
+audit_events.csv,timestamp,str,Column timestamp,NO,False,,,2026-01-24T09:00:00
+audit_events.csv,before_state,str,Column before_state,NO,False,,,"{""status"": ""DRAFT""}"
+audit_events.csv,after_state,str,Column after_state,NO,False,,,"{""status"": ""VALIDATED""}"
+audit_events.csv,hash,str,Column hash,NO,False,,,e47c50d978dec54216c6b8d7bcb16db35ff9b3f11acc9fd35f5613d59015
+exceptions.csv,exception_id,str,Column exception_id,NO,True,,,EXC-000001
+exceptions.csv,cycle,str,Column cycle,NO,False,,,2026-01
+exceptions.csv,entity_type,str,Column entity_type,NO,False,,,MANIFEST
+exceptions.csv,entity_id,str,Column entity_id,NO,False,,,MAN-000004
+exceptions.csv,rule_code,str,Column rule_code,NO,False,,,ROUTE_INFEASIBLE
+exceptions.csv,severity,str,Column severity,NO,False,,,HIGH
+exceptions.csv,reason,str,Column reason,NO,False,,,ROUTE_INFEASIBLE violation for manifest MAN-000004
+exceptions.csv,detected_at,str,Column detected_at,NO,False,,,2026-01-05T10:00:00
+exceptions.csv,assigned_to,str,Column assigned_to,NO,False,,,OFF-00001
+exceptions.csv,status,str,Column status,NO,False,,see spec,ACTION_REQUIRED
+exceptions.csv,resolution,str,Column resolution,NO,False,,,
+exceptions.csv,resolved_at,str,Column resolved_at,NO,False,,,
+weather.csv,date,str,Column date,NO,False,,,2025-09-01
+weather.csv,district,str,Column district,NO,False,,,BENGALURU_URBAN
+weather.csv,rainfall_mm,float64,Column rainfall_mm,NO,False,,,2.9
+weather.csv,temperature_c,float64,Column temperature_c,NO,False,,,23.1
+weather.csv,weather_condition,str,Column weather_condition,NO,False,,,CLOUDY
+calendar_events.csv,date,str,Column date,NO,False,,,2025-05-16
+calendar_events.csv,district,str,Column district,NO,False,,,BENGALURU_URBAN
+calendar_events.csv,event_name,str,Column event_name,NO,False,,,Makar Sankranti
+calendar_events.csv,event_type,str,Column event_type,NO,False,,,FESTIVAL
+calendar_events.csv,impact_factor,float64,Column impact_factor,NO,False,,,0.08
+historical_stockouts.csv,fps_id,str,Column fps_id,NO,True,,,FPS-0535
+historical_stockouts.csv,cycle,str,Column cycle,NO,False,,,2025-01
+historical_stockouts.csv,commodity,str,Column commodity,NO,False,,"RICE,WHEAT",RICE
+historical_stockouts.csv,stockout_flag,int64,Column stockout_flag,NO,False,,,1
+historical_stockouts.csv,stockout_days,int64,Column stockout_days,NO,False,,,2
+historical_stockouts.csv,shortage_kg,int64,Column shortage_kg,NO,False,,,367

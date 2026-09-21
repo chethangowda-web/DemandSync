@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pydantic
+pandas
+numpy
+python-jose[cryptography]
+passlib
+argon2-cffi
+python-multipart

@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgis/postgis:15-3.4
+    environment:
+      POSTGRES_DB: pds_predict
+      POSTGRES_USER: pds
+      POSTGRES_PASSWORD: pds
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+  backend:
+    build: { context: .., dockerfile: Dockerfile }
+    ports: ["8000:8000"]
+    depends_on: [db]
+    environment:
+      DATABASE_URL: postgresql://pds:pds@db:5432/pds_predict
+      JWT_SECRET: dev-only-change-me
+volumes:
+  pgdata:

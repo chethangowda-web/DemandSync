@@ -1,0 +1,58 @@
+dataset,check_name,status,failed_rows,details
+beneficiaries_master.csv,row_count,PASS,0,10000 rows
+beneficiaries_master.csv,null_primary_key,PASS,0,
+beneficiaries_master.csv,duplicate_primary_key,PASS,0,
+beneficiaries_master.csv,negative_entitlement_kg,PASS,0,
+beneficiaries_master.csv,orphan_current_fps_id,PASS,0,
+fps_master.csv,row_count,PASS,0,600 rows
+fps_master.csv,null_primary_key,PASS,0,
+fps_master.csv,duplicate_primary_key,PASS,0,
+fps_master.csv,negative_capacity_kg,PASS,0,
+fps_master.csv,orphan_warehouse_id,PASS,0,
+warehouse_master.csv,row_count,PASS,0,25 rows
+warehouse_master.csv,null_primary_key,PASS,0,
+warehouse_master.csv,duplicate_primary_key,PASS,0,
+vehicle_fleet.csv,row_count,PASS,0,150 rows
+vehicle_fleet.csv,null_primary_key,PASS,0,
+vehicle_fleet.csv,duplicate_primary_key,PASS,0,
+vehicle_fleet.csv,negative_capacity_kg,PASS,0,
+officers_master.csv,row_count,PASS,0,673 rows
+officers_master.csv,null_primary_key,PASS,0,
+officers_master.csv,duplicate_primary_key,PASS,0,
+historical_demand.csv,row_count,PASS,0,14400 rows
+historical_demand.csv,negative_demand_kg,PASS,0,
+intent_signals.csv,row_count,PASS,0,14000 rows
+demand_forecast.csv,row_count,PASS,0,3600 rows
+allocations.csv,row_count,PASS,0,3600 rows
+allocations.csv,negative_allocated_kg,PASS,0,
+inventory.csv,row_count,PASS,0,3900 rows
+delivery_history.csv,row_count,PASS,0,2824 rows
+delivery_history.csv,negative_planned_kg,PASS,0,
+delivery_history.csv,negative_delivered_kg,PASS,0,
+epos_transactions.csv,row_count,PASS,0,14400 rows
+epos_transactions.csv,negative_quantity_kg,PASS,0,
+dispatch_manifests.csv,row_count,PASS,0,300 rows
+dispatch_manifests.csv,negative_total_kg,PASS,0,
+dispatch_manifest_items.csv,row_count,PASS,0,3577 rows
+dispatch_manifest_items.csv,negative_planned_kg,PASS,0,
+vehicle_telemetry.csv,row_count,PASS,0,5170 rows
+vehicle_routes.csv,row_count,PASS,0,3577 rows
+inspections.csv,row_count,PASS,0,400 rows
+grievances.csv,row_count,PASS,0,500 rows
+audit_events.csv,row_count,PASS,0,313 rows
+exceptions.csv,row_count,PASS,0,251 rows
+weather.csv,row_count,PASS,0,1080 rows
+calendar_events.csv,row_count,PASS,0,48 rows
+historical_stockouts.csv,row_count,PASS,0,375 rows
+inventory.csv,broken_inventory_calculation,PASS,0,0 rows mismatch
+dispatch_manifests.csv,broken_manifest_totals,PASS,0,
+beneficiaries_master.csv,broken_entitlement,PASS,0,
+epos_transactions.csv,exceed_entitlement,PASS,0,
+dispatch_manifests.csv,hash_mismatch,PASS,0,
+SCENARIOS,SCENARIO A READY,PASS,0,
+SCENARIOS,SCENARIO B FPS_CAPACITY,PASS,0,
+SCENARIOS,SCENARIO C WAREHOUSE_STOCK,PASS,0,
+SCENARIOS,SCENARIO D VEHICLE_CAPACITY,PASS,0,
+SCENARIOS,SCENARIO E ENTITLEMENT_FLOOR,PASS,0,
+SCENARIOS,SCENARIO F DELIVERY_VARIANCE,PASS,0,
+SCENARIOS,SCENARIO G MISSING_TELEMETRY,PASS,0,

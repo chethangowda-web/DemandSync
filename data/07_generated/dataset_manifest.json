@@ -1,0 +1,122 @@
+{
+  "dataset_name": "PDS_DEMANDSYNC",
+  "version": "1.0.0",
+  "synthetic": true,
+  "generated_at": "2026-09-21T22:50:10.004178",
+  "seed": 20260921,
+  "generation_rules": "Deterministic synthetic, FK consistent, entitlement derived from scheme*household, forecast baseline/intent/forecast distinct, allocation constrained by stock/capacity, manifest hash canonical, delivery variance realistic, telemetry missing 12%",
+  "data_quality_status": "VALIDATED",
+  "row_counts": {
+    "beneficiaries_master.csv": 10000,
+    "fps_master.csv": 600,
+    "warehouse_master.csv": 25,
+    "vehicle_fleet.csv": 150,
+    "officers_master.csv": 673,
+    "historical_demand.csv": 14400,
+    "intent_signals.csv": 14000,
+    "demand_forecast.csv": 3600,
+    "allocations.csv": 3600,
+    "inventory.csv": 3900,
+    "delivery_history.csv": 2824,
+    "epos_transactions.csv": 14400,
+    "dispatch_manifests.csv": 300,
+    "dispatch_manifest_items.csv": 3577,
+    "vehicle_telemetry.csv": 5170,
+    "vehicle_routes.csv": 3577,
+    "inspections.csv": 400,
+    "grievances.csv": 500,
+    "audit_events.csv": 313,
+    "exceptions.csv": 251,
+    "weather.csv": 1080,
+    "calendar_events.csv": 48,
+    "historical_stockouts.csv": 375
+  },
+  "primary_keys": {
+    "beneficiaries_master.csv": "beneficiary_id",
+    "fps_master.csv": "fps_id",
+    "warehouse_master.csv": "warehouse_id",
+    "vehicle_fleet.csv": "vehicle_id",
+    "officers_master.csv": "officer_id",
+    "historical_demand.csv": "fps_id+cycle+commodity",
+    "intent_signals.csv": "intent_id",
+    "demand_forecast.csv": "forecast_id",
+    "allocations.csv": "allocation_id",
+    "inventory.csv": "inventory_id",
+    "delivery_history.csv": "delivery_id",
+    "epos_transactions.csv": "transaction_id",
+    "dispatch_manifests.csv": "manifest_id",
+    "dispatch_manifest_items.csv": "manifest_item_id",
+    "vehicle_telemetry.csv": "telemetry_id",
+    "vehicle_routes.csv": "route_id",
+    "inspections.csv": "inspection_id",
+    "grievances.csv": "grievance_id",
+    "audit_events.csv": "audit_event_id",
+    "exceptions.csv": "exception_id"
+  },
+  "foreign_keys": {
+    "beneficiaries.current_fps_id -> fps.fps_id": true,
+    "fps.warehouse_id -> warehouse.warehouse_id": true,
+    "intent.beneficiary_id -> beneficiaries.beneficiary_id": true,
+    "intent.fps_id -> fps.fps_id": true,
+    "forecast.fps_id -> fps.fps_id": true,
+    "allocations.fps_id -> fps.fps_id": true,
+    "manifest_items.manifest_id -> manifests.manifest_id": true,
+    "manifest_items.fps_id -> fps.fps_id": true,
+    "manifest_items.allocation_id -> allocations.allocation_id": true,
+    "delivery.manifest_item_id -> manifest_items.manifest_item_id": true,
+    "epos.beneficiary_id -> beneficiaries": true,
+    "telemetry.vehicle_id -> vehicle": true
+  },
+  "operating_geography": {
+    "BENGALURU_URBAN": {
+      "lat": 12.9716,
+      "lon": 77.5946
+    },
+    "MYSURU": {
+      "lat": 12.2958,
+      "lon": 76.6394
+    },
+    "TUMAKURU": {
+      "lat": 13.3409,
+      "lon": 77.101
+    },
+    "MANDYA": {
+      "lat": 12.5242,
+      "lon": 76.8958
+    },
+    "HASSAN": {
+      "lat": 13.0072,
+      "lon": 76.0497
+    },
+    "SHIVAMOGGA": {
+      "lat": 13.9299,
+      "lon": 75.5681
+    }
+  },
+  "cycles": [
+    "2025-01",
+    "2025-02",
+    "2025-03",
+    "2025-04",
+    "2025-05",
+    "2025-06",
+    "2025-07",
+    "2025-08",
+    "2025-09",
+    "2025-10",
+    "2025-11",
+    "2025-12",
+    "2026-01",
+    "2026-02",
+    "2026-03"
+  ],
+  "scenarios_included": [
+    "A READY",
+    "B FPS_CAPACITY",
+    "C WAREHOUSE_STOCK",
+    "D VEHICLE_CAPACITY",
+    "E ENTITLEMENT_FLOOR",
+    "F DELIVERY_VARIANCE",
+    "G MISSING_TELEMETRY"
+  ]
+}

@@ -63,7 +63,7 @@ def test_beneficiary_login_flow_me_and_entitlement():
     assert me["role"] == "BENEFICIARY" and me["user_id"] == BEN_RC and "SUBMIT_INTENT" in me["permissions"]
     assert "MANAGE_USERS" not in me["permissions"]
     ent = client.get("/api/v1/beneficiaries/me/entitlement", headers=bearer(body["access_token"])).json()
-    assert ent["total_entitlement_kg"] == 35 and ent["rice_entitlement_kg"] + ent["wheat_entitlement_kg"] == 35
+    assert ent["total_kg"] == 35 and ent["rice_kg"] + ent["wheat_kg"] == 35
 
 
 def test_unknown_card_and_wrong_mobile_are_indistinguishable():

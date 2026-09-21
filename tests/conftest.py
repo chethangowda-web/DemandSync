@@ -67,3 +67,11 @@ def _reset_auth_state(request):
             c.execute("DELETE FROM otp_challenges")
             c.execute("DELETE FROM revoked_tokens")
             c.execute("UPDATE officer_credentials SET failed_attempts = 0, locked_until = NULL, must_change_password = false")
+            # records created through the beneficiary API, and any cycle state a test changed
+            c.execute("DELETE FROM intent_signals WHERE intent_id ~ '^INT-[0-9]{4}-'")
+            c.execute("DELETE FROM grievances WHERE grievance_id ~ '^GRV-1[0-9]{5}$'")
+            c.execute("DELETE FROM ai_predictions WHERE service = 'beneficiary_assistant'")
+            c.execute("DELETE FROM epos_transactions WHERE transaction_id LIKE 'TEST-%'")
+            c.execute("UPDATE cycles SET state = 'OPEN' WHERE cycle = '2026-03'")
+            c.execute("UPDATE cycles SET state = 'DELIVERING' WHERE cycle = '2026-02'")
+            c.execute("UPDATE cycles SET state = 'AUDITING' WHERE cycle = '2026-01'")

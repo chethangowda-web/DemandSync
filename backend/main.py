@@ -12,10 +12,17 @@ from backend.api.beneficiary import router as beneficiary_router
 from backend.api.auth import router as auth_router
 from backend.api.system import router as system_router
 from backend.web import router as web_router
+from backend.core.errors import http_exception_handler, validation_exception_handler
+from fastapi.exceptions import RequestValidationError
+from fastapi import HTTPException as _HTTPException
+from starlette.exceptions import HTTPException as _StarletteHTTPException
 app.include_router(beneficiary_router)
 app.include_router(auth_router)
 app.include_router(system_router)
 app.include_router(web_router)
+app.add_exception_handler(_HTTPException, http_exception_handler)
+app.add_exception_handler(_StarletteHTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 @app.get("/health")
 def health():

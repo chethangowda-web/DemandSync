@@ -1,230 +1,185 @@
-from fastapi import APIRouter, HTTPException, Header, Depends
+"""Beneficiary service API. Identity comes only from the authenticated token; no endpoint accepts a beneficiary id.
+Every record is read from and written to PostgreSQL. Ownership is enforced in the SQL of each service call."""
+from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel
-from typing import Optional
-import pandas as pd, hashlib, json, random
-from pathlib import Path
-from datetime import datetime, timedelta
+
+from backend.core.audit import write_audit
 from backend.core.auth_middleware import require_role
+from backend.core.errors import ApiError
 from backend.core.rbac import Role
+from backend.db.conn import get_db
+from backend.services import assistant, beneficiary as svc
 
 router = APIRouter(prefix="/api/v1", tags=["beneficiary"])
-from backend.core.config import DATA_DIR as DATA
-# load datasets lazily
-_ben = None; _fps=None; _intent=None; _epos=None; _cycles=None; _grv=None; _man=None; _del=None; _tel=None
+Beneficiary = Depends(require_role(Role.BENEFICIARY))
 
-def load():
-    global _ben,_fps,_intent,_epos,_cycles,_grv,_man,_del,_tel
-    if _ben is None:
-        _ben=pd.read_csv(DATA/"01_master/beneficiaries_master.csv", dtype=str).fillna("")
-        # ensure numeric
-        for c in ["household_size","entitlement_kg","rice_entitlement_kg","wheat_entitlement_kg"]:
-            _ben[c]=pd.to_numeric(_ben[c], errors='coerce').fillna(0).astype(int)
-        _fps=pd.read_csv(DATA/"01_master/fps_master.csv", dtype=str)
-        _intent=pd.read_csv(DATA/"02_demand/intent_signals.csv", dtype=str).fillna("")
-        _epos=pd.read_csv(DATA/"03_operations/epos_transactions.csv", dtype=str).fillna("")
-        _man=pd.read_csv(DATA/"03_operations/dispatch_manifests.csv", dtype=str).fillna("")
-        _del=pd.read_csv(DATA/"03_operations/delivery_history.csv", dtype=str).fillna("")
-        _tel=pd.read_csv(DATA/"04_tracking/vehicle_telemetry.csv", dtype=str).fillna("")
-        _grv=pd.read_csv(DATA/"05_compliance/grievances.csv", dtype=str).fillna("")
-load()
-
-def get_beneficiary_by_rc(rc): 
-    load()
-    row=_ben[_ben.ration_card_id==rc]
-    return row.iloc[0].to_dict() if not row.empty else None
-
-def auth_beneficiary(user=Depends(require_role(Role.BENEFICIARY))):
-    """Identity and status are verified against the database by the unified auth layer.
-    The remaining profile data still comes from the CSV-backed frames until Phase 1 moves it to the database."""
-    ben=get_beneficiary_by_rc(user["ration_card_id"])
-    if not ben: raise HTTPException(401,"Beneficiary not found")
-    return ben
 
 class IntentRequest(BaseModel):
     fps_id: str
-    cycle: str
     rice_quantity_kg: int
     wheat_quantity_kg: int
     collection_mode: str = "SELF"
+    cycle: str | None = None  # defaults to the current cycle
+
 
 class GrievanceRequest(BaseModel):
-    fps_id: str
     category: str
     description: str
-    cycle: Optional[str]=None
+    fps_id: str | None = None
+    cycle: str | None = None
+    related_transaction_id: str | None = None
+
 
 class AssistantRequest(BaseModel):
-    question: str
+    question: str | None = None
+    intent: str | None = None  # a tapped suggestion chip
+    language: str = "en"
+
+
+class SuggestRequest(BaseModel):
+    description: str
+
+
+# ------------------------------------------------------------------ profile, cycle, entitlement, home
 
 @router.get("/beneficiaries/me")
-def me(ben=Depends(auth_beneficiary)):
-    load()
-    fps=_fps[_fps.fps_id==ben["current_fps_id"]]
-    fps_data=fps.iloc[0].to_dict() if not fps.empty else None
-    return {"beneficiary":ben, "fps":fps_data}
+def me(user=Beneficiary, conn=Depends(get_db)):
+    return svc.get_profile(conn, user["beneficiary_id"])
 
-@router.get("/beneficiaries/me/entitlement")
-def entitlement(cycle: str="2026-03", ben=Depends(auth_beneficiary)):
-    load()
-    # entitlement from master (authoritative, never changed by intent)
-    total=int(ben["entitlement_kg"]); rice=int(ben["rice_entitlement_kg"]); wheat=int(ben["wheat_entitlement_kg"])
-    # used = sum SUCCESS epos for this cycle/commodity
-    e=_epos[(_epos.beneficiary_id==ben["beneficiary_id"]) & (_epos.cycle==cycle) & (_epos.status=="SUCCESS")]
-    used_rice=e[e.commodity=="RICE"].quantity_kg.astype(int).sum() if not e.empty else 0
-    used_wheat=e[e.commodity=="WHEAT"].quantity_kg.astype(int).sum() if not e.empty else 0
-    used=int(used_rice)+int(used_wheat)
-    remaining=total-used
-    return {"cycle":cycle, "scheme":ben["scheme_type"], "household_size":int(ben["household_size"]), "rice_entitlement_kg":rice, "wheat_entitlement_kg":wheat, "total_entitlement_kg":total, "used_rice_kg":int(used_rice), "used_wheat_kg":int(used_wheat), "used_total_kg":used, "remaining_rice_kg":rice-int(used_rice), "remaining_wheat_kg":wheat-int(used_wheat), "remaining_total_kg":remaining, "source":"beneficiaries_master + epos_transactions"}
 
 @router.get("/cycles/current")
-def current_cycle(ben=Depends(auth_beneficiary)):
-    # from dataset_manifest cycles, current is 2026-03 MONITOR
-    return {"cycle":"2026-03","name":"September 2026","period":"2025-09-01 to 2026-03-31","choice_window":"2026-03-05 — 2026-03-20","status":"CHOICE_WINDOW_OPEN","window_open":True, "closes_on":"2026-03-20T23:59:00"}
+def current_cycle(user=Beneficiary, conn=Depends(get_db)):
+    c = svc.get_cycle(conn)
+    if c is None:
+        raise ApiError(404, "NO_ACTIVE_CYCLE", "There is no active cycle right now.")
+    return c
 
-@router.get("/cycles/{cycle}")
-def get_cycle(cycle: str, ben=Depends(auth_beneficiary)):
-    return {"cycle":cycle,"choice_window":f"{cycle}-05 — {cycle}-20","status":"OPEN" if cycle=="2026-03" else "CLOSED"}
 
-@router.post("/preferences")
-def submit_intent(req: IntentRequest, ben=Depends(auth_beneficiary)):
-    load()
-    global _intent
-    # validation
-    if req.rice_quantity_kg<0 or req.wheat_quantity_kg<0: raise HTTPException(400,"Negative quantities not allowed")
-    # check window (only 2026-03 open)
-    if req.cycle!="2026-03": raise HTTPException(400,"Choice window closed for this cycle")
-    # fps exists and belongs to beneficiary district? allow any but warn if not current
-    if req.fps_id not in _fps.fps_id.values: raise HTTPException(400,"Invalid FPS")
-    # duplicate check
-    dup=_intent[(_intent.beneficiary_id==ben["beneficiary_id"]) & (_intent.cycle==req.cycle) & (_intent.status=="SUBMITTED")]
-    if not dup.empty: raise HTTPException(409,"Your collection preference has already been submitted for this cycle.")
-    # remaining entitlement check
-    ent_total=int(ben["entitlement_kg"])
-    requested=req.rice_quantity_kg+req.wheat_quantity_kg
-    # used
-    e=_epos[(_epos.beneficiary_id==ben["beneficiary_id"]) & (_epos.cycle==req.cycle) & (_epos.status=="SUCCESS")]
-    used=int(e.quantity_kg.astype(int).sum()) if not e.empty else 0
-    remaining=ent_total-used
-    if requested>remaining: raise HTTPException(400,f"Requested {requested}kg exceeds remaining entitlement {remaining}kg (statutory entitlement {ent_total}kg)")
-    if req.rice_quantity_kg>int(ben["rice_entitlement_kg"]): raise HTTPException(400,"Rice quantity exceeds rice entitlement")
-    if req.wheat_quantity_kg>int(ben["wheat_entitlement_kg"]): raise HTTPException(400,"Wheat quantity exceeds wheat entitlement")
-    # create intent (persist to memory; in production would write to DB)
-    new_id=f"INT-{len(_intent)+1:07d}"
-    new_row={"intent_id":new_id,"beneficiary_id":ben["beneficiary_id"],"fps_id":req.fps_id,"cycle":req.cycle,"rice_quantity_kg":str(req.rice_quantity_kg),"wheat_quantity_kg":str(req.wheat_quantity_kg),"total_quantity_kg":str(requested),"collection_mode":req.collection_mode,"submitted_at":datetime.now().isoformat(),"status":"SUBMITTED"}
-    _intent=pd.concat([_intent, pd.DataFrame([new_row])], ignore_index=True)
-    # audit would be generated here
-    return {"intent_id":new_id,"cycle":req.cycle,"fps_id":req.fps_id,"rice_quantity_kg":req.rice_quantity_kg,"wheat_quantity_kg":req.wheat_quantity_kg,"total_quantity_kg":requested,"submitted_at":new_row["submitted_at"],"status":"RECORDED","reference":new_id}
+@router.get("/beneficiaries/me/entitlement")
+def entitlement(cycle: str | None = None, user=Beneficiary, conn=Depends(get_db)):
+    c = svc.get_cycle(conn, cycle)
+    if c is None:
+        raise ApiError(404, "NO_ACTIVE_CYCLE", "There is no active cycle right now.")
+    return svc.get_entitlement(conn, user["beneficiary_id"], c["cycle"])
+
+
+@router.get("/beneficiaries/me/home")
+def home(user=Beneficiary, conn=Depends(get_db)):
+    """Everything the service home needs in one round trip. Notices are codes; the app words them in the user's language."""
+    bid = user["beneficiary_id"]
+    profile = svc.get_profile(conn, bid)
+    cyc = svc.get_cycle(conn)
+    out = {**profile, "cycle": cyc, "entitlement": None, "intent": None, "status_key": None, "notice": None}
+    if cyc is None:
+        out["notice"] = {"code": "NO_CYCLE", "params": {}}
+        return out
+    out["entitlement"] = svc.get_entitlement(conn, bid, cyc["cycle"])
+    intent = svc.live_intent(conn, bid, cyc["cycle"])
+    journey = svc.get_journey(conn, bid, cyc["cycle"])
+    done = {s["key"] for s in journey["steps"] if s["status"] == "DONE"}
+    if intent:
+        out["intent"] = svc.receipt_view(conn, intent, cyc["window_open"])
+        out["status_key"] = journey["headline"]
+        received_not_collected = "RECEIVED_AT_FPS" in done and "COLLECTED" not in done
+        out["notice"] = {"code": "RATION_AT_FPS" if received_not_collected else "INTENT_RECORDED",
+                         "params": {"reference": intent["intent_id"]}}
+    elif cyc["window_open"]:
+        out["status_key"] = "CHOICE_WINDOW_OPEN"
+        if profile["fps"]["status"] != "ACTIVE":
+            out["notice"] = {"code": "FPS_NOT_ACTIVE", "params": {"fps": profile["fps"]["name"]}}
+        else:
+            out["notice"] = {"code": "PLAN_NOW", "params": {"closes": cyc["choice_window_end"]}}
+    else:
+        out["status_key"] = "CHOICE_WINDOW_CLOSED"
+        out["notice"] = {"code": "WINDOW_CLOSED_NO_INTENT", "params": {}}
+    return out
+
+
+@router.get("/fps/eligible")
+def fps_eligible(limit: int = Query(25, ge=1, le=50), user=Beneficiary, conn=Depends(get_db)):
+    return {"fps": svc.eligible_fps(conn, user["beneficiary_id"], limit)}
+
+
+# ------------------------------------------------------------------ collection intent
+
+@router.post("/preferences", status_code=201)
+def submit_intent(req: IntentRequest, user=Beneficiary, conn=Depends(get_db)):
+    bid = user["beneficiary_id"]
+    receipt = svc.submit_intent(conn, bid, req.fps_id, req.rice_quantity_kg, req.wheat_quantity_kg, req.collection_mode, req.cycle)
+    conn.commit()  # the record exists before it is audited
+    write_audit(bid, "BENEFICIARY", "PREFERENCE_SUBMITTED", "SUCCESS", f"{receipt['total_kg']} kg at {receipt['fps']['fps_id']}",
+                "INTENT", receipt["reference"], receipt["cycle"])
+    return receipt
+
 
 @router.get("/preferences/me")
-def my_preferences(cycle: Optional[str]=None, ben=Depends(auth_beneficiary)):
-    load()
-    df=_intent[_intent.beneficiary_id==ben["beneficiary_id"]]
-    if cycle: df=df[df.cycle==cycle]
-    return {"intents": df.to_dict(orient="records")}
+def my_preferences(cycle: str | None = None, user=Beneficiary, conn=Depends(get_db)):
+    items = svc.history(conn, user["beneficiary_id"], "intents", 100, 0)
+    return {"intents": [i for i in items if cycle is None or i["cycle"] == cycle]}
 
-@router.get("/preferences/receipt/{intent_id}")
-def receipt(intent_id: str, ben=Depends(auth_beneficiary)):
-    load()
-    row=_intent[(_intent.intent_id==intent_id) & (_intent.beneficiary_id==ben["beneficiary_id"])]
-    if row.empty: raise HTTPException(404,"Receipt not found or not yours")
-    r=row.iloc[0].to_dict()
-    fps=_fps[_fps.fps_id==r["fps_id"]].iloc[0].to_dict() if not _fps[_fps.fps_id==r["fps_id"]].empty else {}
-    return {"receipt":r, "fps":fps, "beneficiary":ben}
+
+@router.get("/preferences/{reference}/receipt")
+def intent_receipt(reference: str, user=Beneficiary, conn=Depends(get_db)):
+    return svc.get_receipt(conn, user["beneficiary_id"], reference)
+
+
+@router.post("/preferences/{reference}/cancel")
+def cancel_intent(reference: str, user=Beneficiary, conn=Depends(get_db)):
+    receipt = svc.cancel_intent(conn, user["beneficiary_id"], reference)
+    conn.commit()
+    write_audit(user["beneficiary_id"], "BENEFICIARY", "PREFERENCE_CANCELLED", "SUCCESS", "cancelled while the choice window was open",
+                "INTENT", reference, receipt["cycle"])
+    return receipt
+
+
+# ------------------------------------------------------------------ tracking, history, receipts
 
 @router.get("/tracking/me")
-def tracking(cycle: str="2026-03", ben=Depends(auth_beneficiary)):
-    load()
-    # find intent for cycle
-    intent=_intent[(_intent.beneficiary_id==ben["beneficiary_id"]) & (_intent.cycle==cycle) & (_intent.status=="SUBMITTED")]
-    if intent.empty: return {"cycle":cycle,"status":"NO_INTENT","steps":[]}
-    intent_row=intent.iloc[0].to_dict()
-    # find allocation/manifest/delivery chain for that fps+cycle
-    fps_id=intent_row["fps_id"]
-    # check allocations, manifests, deliveries existence as boolean
-    has_alloc = not pd.read_csv(DATA/"02_demand/allocations.csv", dtype=str).query("fps_id==@fps_id and cycle==@cycle").empty
-    man_df=pd.read_csv(DATA/"03_operations/dispatch_manifests.csv", dtype=str)
-    has_man = not man_df[(man_df.cycle==cycle) & (man_df.warehouse_id.isin(_fps[_fps.fps_id==fps_id].warehouse_id.values))].empty if not _fps[_fps.fps_id==fps_id].empty else False
-    del_df=_del
-    has_del = not del_df[(del_df.fps_id==fps_id) & (del_df.manifest_id.isin(man_df.manifest_id))].empty
-    # build timeline from real records
-    steps=[
-        {"label":"INTENT SUBMITTED","status":"DONE","timestamp":intent_row["submitted_at"]},
-        {"label":"DEMAND PLANNED","status":"DONE" if has_alloc else "PENDING"},
-        {"label":"ALLOCATED","status":"DONE" if has_alloc else "PENDING"},
-        {"label":"DISPATCHED","status":"DONE" if has_man else "PENDING"},
-        {"label":"IN TRANSIT","status":"ACTIVE" if has_man and not has_del else ("DONE" if has_del else "PENDING")},
-        {"label":"RECEIVED AT FPS","status":"DONE" if has_del else "PENDING"},
-        {"label":"AVAILABLE FOR COLLECTION","status":"PENDING"},
-        {"label":"COLLECTED","status":"PENDING"},
-    ]
-    # telemetry
-    telemetry=None
-    if has_man:
-        # find vehicle for manifest
-        m=man_df[(man_df.cycle==cycle)].iloc[0].to_dict() if not man_df[man_df.cycle==cycle].empty else None
-        if m:
-            tel=_tel[_tel.manifest_id==m["manifest_id"]]
-            if not tel.empty: telemetry=tel.iloc[-1].to_dict()
-    return {"cycle":cycle,"intent":intent_row,"steps":steps,"telemetry":telemetry, "telemetry_note":"Live location unavailable" if telemetry is None else "Real telemetry from vehicle_telemetry.csv"}
+def tracking(cycle: str | None = None, user=Beneficiary, conn=Depends(get_db)):
+    c = svc.get_cycle(conn, cycle)
+    if c is None:
+        raise ApiError(404, "NO_ACTIVE_CYCLE", "There is no active cycle right now.")
+    return svc.get_journey(conn, user["beneficiary_id"], c["cycle"])
+
 
 @router.get("/history/me")
-def history(ben=Depends(auth_beneficiary)):
-    load()
-    intents=_intent[_intent.beneficiary_id==ben["beneficiary_id"]].to_dict(orient="records")
-    epos=_epos[_epos.beneficiary_id==ben["beneficiary_id"]].to_dict(orient="records")
-    delivs=_del[_del.manifest_id.isin(pd.read_csv(DATA/"03_operations/dispatch_manifest_items.csv", dtype=str)[pd.read_csv(DATA/"03_operations/dispatch_manifest_items.csv", dtype=str).fps_id==ben["current_fps_id"]].manifest_id.values) ] if not _del.empty else []
-    return {"intents":intents, "transactions":epos, "deliveries": delivs.to_dict(orient="records") if hasattr(delivs,'to_dict') else []}
+def history(kind: str = "collections", limit: int = Query(50, ge=1, le=100), offset: int = Query(0, ge=0),
+            user=Beneficiary, conn=Depends(get_db)):
+    return {"kind": kind, "items": svc.history(conn, user["beneficiary_id"], kind, limit, offset)}
 
-@router.post("/grievances")
-def submit_grievance(req: GrievanceRequest, ben=Depends(auth_beneficiary)):
-    load()
-    global _grv
-    if req.category not in ["Short delivery","SHORT_DELIVERY","WRONG_QUANTITY","FPS_CLOSED","QUALITY","TRANSACTION_FAILURE","ENTITLEMENT_QUERY","OTHER","Short delivery","Wrong quantity"]:
-        # allow case-insensitive, normalize
-        pass
-    new_id=f"GRV-{len(_grv)+1:06d}"
-    new_row={"grievance_id":new_id,"beneficiary_id":ben["beneficiary_id"],"fps_id":req.fps_id,"category":req.category,"description":req.description,"created_at":datetime.now().isoformat(),"status":"OPEN","resolution":"","resolved_at":""}
-    _grv=pd.concat([_grv, pd.DataFrame([new_row])], ignore_index=True)
-    return {"grievance_id":new_id,"status":"OPEN","message":"Grievance recorded — AI triage will classify and route to officer"}
+
+@router.get("/transactions/{transaction_id}/receipt")
+def digital_receipt(transaction_id: str, user=Beneficiary, conn=Depends(get_db)):
+    return svc.transaction_receipt(conn, user["beneficiary_id"], transaction_id)
+
+
+# ------------------------------------------------------------------ grievances
+
+@router.post("/grievances", status_code=201)
+def submit_grievance(req: GrievanceRequest, user=Beneficiary, conn=Depends(get_db)):
+    bid = user["beneficiary_id"]
+    g = svc.create_grievance(conn, bid, req.category, req.description, req.fps_id, req.cycle, req.related_transaction_id)
+    conn.commit()
+    write_audit(bid, "BENEFICIARY", "GRIEVANCE_SUBMITTED", "SUCCESS", g["category"], "GRIEVANCE", g["grievance_id"], g["cycle"])
+    return g
+
+
+@router.get("/grievances/me")
+def my_grievances(user=Beneficiary, conn=Depends(get_db)):
+    return {"grievances": svc.list_grievances(conn, user["beneficiary_id"])}
+
+
+# ------------------------------------------------------------------ AI (advisory, read-only)
 
 @router.post("/ai/assistant")
-def assistant(req: AssistantRequest, ben=Depends(auth_beneficiary)):
-    load()
-    q=req.question.lower()
-    # simple rule-based assistant that uses real beneficiary data — not generic LLM
-    # compute entitlement/remaining etc.
-    cycle="2026-03"
-    ent=int(ben["entitlement_kg"]); rice=int(ben["rice_entitlement_kg"]); wheat=int(ben["wheat_entitlement_kg"])
-    e=_epos[(_epos.beneficiary_id==ben["beneficiary_id"]) & (_epos.cycle==cycle) & (_epos.status=="SUCCESS")]
-    used=int(e.quantity_kg.astype(int).sum()) if not e.empty else 0
-    remaining=ent-used
-    intent=_intent[(_intent.beneficiary_id==ben["beneficiary_id"]) & (_intent.cycle==cycle)]
-    intent_txt = f"Your collection preference for {cycle} is {intent.iloc[0].to_dict()}" if not intent.empty else "No intent submitted for current cycle."
-    fps=_fps[_fps.fps_id==ben["current_fps_id"]].iloc[0].to_dict() if not _fps[_fps.fps_id==ben["current_fps_id"]].empty else {}
-    answer="I can help with your PDS records."
-    source="beneficiaries_master + epos_transactions"
-    if "entitlement" in q or "how much" in q:
-        answer=f"You have {remaining} KG remaining in {cycle} (Total entitlement {ent}KG: Rice {rice} + Wheat {wheat}, Used {used}KG)."
-        source="beneficiaries_master + epos_transactions"
-    elif "collect" in q or "window" in q:
-        answer="Your collection window for September 2026 is 10 Sep — 25 Sep 2026 at "+fps.get("fps_name","your FPS")+". "+intent_txt
-        source="fps_master + intent_signals"
-    elif "fps" in q or "shop" in q:
-        answer=f"Your current FPS is {fps.get('fps_name')} ({fps.get('fps_id')}) in {ben['district']}."
-        source="fps_master"
-    elif "request" in q or "intent" in q:
-        answer=intent_txt; source="intent_signals"
-    elif "dispatch" in q or "track" in q or "where" in q:
-        answer="Your ration dispatch status is TRACKED via dispatch_manifests + vehicle_telemetry. Check Track My Ration for live status."
-        source="dispatch_manifests + vehicle_telemetry"
-    else:
-        answer="You can ask: How much entitlement left? When to collect? What did I request? Has ration been dispatched? Where is my FPS? Why can't I submit preference? — I explain your real records."
-        source="system records"
-    return {"answer":answer, "source":source, "beneficiary_id":ben["beneficiary_id"], "cycle":cycle, "model":"rule-assistant v0.1 (uses PostgreSQL, not generative)", "generated_at":datetime.now().isoformat(), "disclaimer":"AI explains your records, does not modify entitlement or approve requests"}
+def ask_assistant(req: AssistantRequest, user=Beneficiary, conn=Depends(get_db)):
+    if not (req.question and req.question.strip()) and not req.intent:
+        raise ApiError(422, "EMPTY_QUESTION", "Type a question or pick a suggestion.")
+    return assistant.answer(conn, user["beneficiary_id"], (req.question or "")[:300], req.intent, req.language)
 
-@router.get("/fps/{fps_id}")
-def get_fps(fps_id: str, ben=Depends(auth_beneficiary)):
-    load()
-    row=_fps[_fps.fps_id==fps_id]
-    if row.empty: raise HTTPException(404,"FPS not found")
-    return row.iloc[0].to_dict()
+
+@router.post("/ai/grievance-suggest")
+def grievance_suggest(req: SuggestRequest, user=Beneficiary, conn=Depends(get_db)):
+    if len(req.description.strip()) < 5:
+        raise ApiError(422, "INVALID_DESCRIPTION", "Please describe the issue first.")
+    return assistant.suggest_grievance(conn, user["beneficiary_id"], req.description[:500])

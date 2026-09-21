@@ -270,3 +270,18 @@ def test_db_status_endpoint_reflects_real_database(loaded, monkeypatch):
     assert body["latest_import"]["status"] == "ACTIVE" and body["latest_import"]["checks_failed"] == 0
     assert body["row_counts"]["beneficiaries"] == 10000 and body["total_rows"] == 83763
     assert body["migrations"][0] == "0001_schema.sql"
+
+
+def test_if_empty_seeds_once_and_never_overwrites(db_url):
+    first = import_dataset(db_url, activate=True, if_empty=True, imported_by="bootstrap")
+    assert first["status"] == "ACTIVE"
+    before = table_counts(db_url, ["beneficiaries", "dataset_imports"])
+    again = import_dataset(db_url, activate=True, if_empty=True)
+    assert again["status"] == "SKIPPED"
+    assert table_counts(db_url, ["beneficiaries", "dataset_imports"]) == before
+
+
+def test_if_empty_skips_when_only_import_history_exists(db_url, data_copy):
+    edit(data_copy, "01_master/fps_master.csv", lambda d: d.__setitem__("capacity_kg", [""] + list(d.capacity_kg[1:])))
+    assert import_dataset(db_url, data_dir=data_copy)["status"] == "REJECTED"  # leaves a REJECTED history row
+    assert import_dataset(db_url, if_empty=True)["status"] == "SKIPPED"  # not blindly re-seeded over history

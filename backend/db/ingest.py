@@ -310,9 +310,17 @@ def _existing_rows(conn: psycopg.Connection) -> dict[str, int]:
 
 
 def import_dataset(url: str | None = None, data_dir: Path = DATA_DIR, imported_by: str = "cli",
-                   activate: bool = False, replace: bool = False, dry_run: bool = False) -> dict:
-    """Validate and (unless dry_run) load the dataset. Returns a summary dict; never partial-loads."""
+                   activate: bool = False, replace: bool = False, dry_run: bool = False,
+                   if_empty: bool = False) -> dict:
+    """Validate and (unless dry_run) load the dataset. Returns a summary dict; never partial-loads.
+
+    if_empty: do nothing (status SKIPPED) unless the database holds no dataset rows and no import history.
+    Used for first-start seeding; it can never overwrite or duplicate data.
+    """
     with connect(url) as conn:
+        if if_empty and (_existing_rows(conn) or conn.execute("SELECT count(*) FROM dataset_imports").fetchone()[0]):
+            return {"passed": True, "status": "SKIPPED", "import_id": None, "total_rows": 0, "row_counts": {},
+                    "checksum": None, "report": {"total": 0, "failed": 0, "checks": []}}
         report, frames = validate(conn, data_dir)
         checksum = dataset_checksum(data_dir)
         row_counts = {t: len(df) for t, df in frames.items()}
@@ -369,10 +377,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--dry-run", action="store_true", help="validate only, write nothing")
     ap.add_argument("--activate", action="store_true", help="mark the import ACTIVE")
     ap.add_argument("--replace", action="store_true", help="wipe dataset tables first (dev only)")
+    ap.add_argument("--if-empty", action="store_true", help="skip unless the database is completely empty")
     ap.add_argument("--by", default="cli", help="who is importing (recorded in dataset_imports)")
     a = ap.parse_args(argv)
     try:
-        s = import_dataset(data_dir=a.path, imported_by=a.by, activate=a.activate, replace=a.replace, dry_run=a.dry_run)
+        s = import_dataset(data_dir=a.path, imported_by=a.by, activate=a.activate, replace=a.replace, dry_run=a.dry_run,
+                           if_empty=a.if_empty)
     except ImportBlocked as e:
         print(f"BLOCKED: {e}")
         return 2

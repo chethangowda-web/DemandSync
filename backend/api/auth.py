@@ -36,6 +36,11 @@ class OfficerLogin(BaseModel):
     password: str = Field(min_length=1, max_length=256)
 
 
+class BootstrapFirstAdmin(BaseModel):
+    officer_id: str = Field(min_length=1, max_length=32)
+    password: str = Field(min_length=1, max_length=256)
+
+
 class ChangePassword(BaseModel):
     current_password: str = Field(min_length=1, max_length=256)
     new_password: str = Field(min_length=1, max_length=256)
@@ -109,6 +114,30 @@ def _register_failed_login(conn, officer_id: str) -> None:
                locked_until = CASE WHEN failed_attempts + 1 >= %s THEN now() + make_interval(mins => %s) ELSE locked_until END
            WHERE officer_id = %s""", (MAX_FAILED_LOGINS, LOCKOUT_MINUTES, officer_id))
     conn.commit()
+
+
+@router.post("/officer/bootstrap-first-admin", status_code=201)
+def bootstrap_first_admin(req: BootstrapFirstAdmin, conn=Depends(get_db)):
+    """One-time-only initial credential provisioning: works ONLY while officer_credentials is completely
+    empty (a fresh deployment nobody has logged into yet). The moment any officer has a password set --
+    whether by this endpoint or any other means -- this permanently refuses, forever. No separate secret
+    or token is needed; "nobody has ever set a password yet" is itself the one-time gate. must_change_password
+    is set, so whoever provisions it here is required to pick their own password on first real login."""
+    existing = conn.execute("SELECT count(*) FROM officer_credentials").fetchone()[0]
+    if existing > 0:
+        raise HTTPException(403, "Bootstrap already used: this instance already has officer credentials set.")
+    if not conn.execute("SELECT 1 FROM officers WHERE officer_id = %s", (req.officer_id,)).fetchone():
+        raise HTTPException(404, "Unknown officer_id.")
+    problem = password_policy_error(req.password, req.officer_id)
+    if problem:
+        raise HTTPException(422, problem)
+    conn.execute(
+        """INSERT INTO officer_credentials (officer_id, password_hash, must_change_password)
+           VALUES (%s, %s, true)""",
+        (req.officer_id, hash_password(req.password)))
+    conn.commit()
+    write_audit(req.officer_id, "SYSTEM", "CREDENTIAL_BOOTSTRAP", "SUCCESS", "first-run bootstrap: no prior credentials existed")
+    return {"status": "ok", "officer_id": req.officer_id, "must_change_password": True}
 
 
 @router.post("/officer/login")

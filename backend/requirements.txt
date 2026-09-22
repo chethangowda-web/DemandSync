@@ -8,3 +8,6 @@ passlib
 argon2-cffi
 python-multipart
 psycopg[binary]
+xgboost
+ortools
+qrcode[pil]

@@ -11,7 +11,7 @@ COPY frontend/beneficiary-mobile/pubspec.yaml frontend/beneficiary-mobile/pubspe
 RUN flutter pub get
 COPY frontend/beneficiary-mobile/ ./
 RUN flutter gen-l10n
-RUN flutter build web --release
+RUN flutter build web --release --base-href /beneficiary/
 
 FROM python:3.11-slim
 WORKDIR /app

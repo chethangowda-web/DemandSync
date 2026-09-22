@@ -15,7 +15,9 @@ from backend.db.conn import get_db
 from backend.services import allocation as allocation_svc
 from backend.services import demand as demand_svc
 from backend.services import forecast as forecast_svc
+from backend.services import manifest as manifest_svc
 from backend.services import routing as routing_svc
+from backend.services import tracking as tracking_svc
 from backend.services.beneficiary import one, rows
 
 router = APIRouter(prefix="/api/v1", tags=["dso"])
@@ -175,3 +177,94 @@ def get_manifests(cycle: str, user=ViewManifest, conn=Depends(get_db)):
 @router.get("/manifests/{manifest_id}")
 def get_manifest_detail(manifest_id: str, user=ViewManifest, conn=Depends(get_db)):
     return routing_svc.manifest_detail(conn, manifest_id)
+
+
+# ---------------------------------------------------------------- Slice 4: OPTIMIZED -> AUTHORIZED
+
+@router.post("/manifests/{manifest_id}/validate")
+def validate_manifest(manifest_id: str, user=ManageCycle, conn=Depends(get_db)):
+    """DRAFT -> VALIDATED. Re-checks the manifest's arithmetic and that it still matches the live
+    allocation it was built from."""
+    result = manifest_svc.validate_manifest(conn, manifest_id, user["user_id"])
+    conn.commit()
+    write_audit(user["user_id"], user["role"], "MANIFEST_VALIDATED", "SUCCESS", "", "MANIFEST", manifest_id, None)
+    return result
+
+
+@router.post("/manifests/{manifest_id}/lock")
+def lock_manifest(manifest_id: str, user=ManageCycle, conn=Depends(get_db)):
+    """VALIDATED -> LOCKED. Seals the manifest with a SHA256 hash and a QR payload; the DB trigger makes
+    its content immutable from this point on."""
+    result = manifest_svc.lock_manifest(conn, manifest_id, user["user_id"])
+    conn.commit()
+    write_audit(user["user_id"], user["role"], "MANIFEST_LOCKED", "SUCCESS", "", "MANIFEST", manifest_id, None,
+               after=result["sha256_hash"])
+    return result
+
+
+@router.get("/manifests/{manifest_id}/lock-verification")
+def manifest_lock_verification(manifest_id: str, user=ViewManifest, conn=Depends(get_db)):
+    return manifest_svc.get_lock_verification(conn, manifest_id)
+
+
+@router.get("/manifests/{manifest_id}/qr")
+def manifest_qr(manifest_id: str, user=ViewManifest, conn=Depends(get_db)):
+    b64 = manifest_svc.manifest_qr_png_base64(conn, manifest_id)
+    return {"manifest_id": manifest_id, "qr_png_base64": b64}
+
+
+@router.post("/cycles/{cycle}/authorize")
+def authorize_cycle(cycle: str, user=ManageCycle, conn=Depends(get_db)):
+    """OPTIMIZED -> AUTHORIZED. The DSO's final human sign-off; every manifest produced for the cycle
+    must be LOCKED first."""
+    result = manifest_svc.authorize_cycle(conn, cycle, user["user_id"])
+    conn.commit()
+    write_audit(user["user_id"], user["role"], "CYCLE_AUTHORIZED", "SUCCESS",
+               f"{result['manifests_authorized']} manifests authorized", "CYCLE", cycle, cycle)
+    return result
+
+
+# ---------------------------------------------------------------- Slice 5: TRACKING -> CLOSED
+
+@router.post("/cycles/{cycle}/dispatch")
+def dispatch_cycle(cycle: str, user=ManageCycle, conn=Depends(get_db)):
+    """AUTHORIZED -> TRACKING. Every LOCKED manifest is marked DISPATCHED and its vehicle moves IN_TRANSIT."""
+    result = tracking_svc.dispatch_cycle(conn, cycle, user["user_id"])
+    conn.commit()
+    write_audit(user["user_id"], user["role"], "CYCLE_DISPATCHED", "SUCCESS",
+               f"{result['manifests_dispatched']} manifests dispatched", "CYCLE", cycle, cycle)
+    return result
+
+
+@router.post("/manifests/{manifest_id}/deliver")
+def record_delivery(manifest_id: str, body: dict = Body(...), user=ManageCycle, conn=Depends(get_db)):
+    """DISPATCHED -> DELIVERED. `items`: [{fps_id, commodity, delivered_kg}], the DSO/field inspector's
+    actually observed quantities -- never inferred from the plan."""
+    items = body.get("items")
+    if not items:
+        raise ApiError(422, "INVALID_REQUEST", "items is required.")
+    result = tracking_svc.record_delivery(conn, manifest_id, user["user_id"], items)
+    conn.commit()
+    write_audit(user["user_id"], user["role"], "DELIVERY_RECORDED", "SUCCESS",
+               f"{len(result['items'])} item(s) recorded", "MANIFEST", manifest_id, None)
+    return result
+
+
+@router.post("/cycles/{cycle}/reconcile")
+def reconcile_cycle(cycle: str, user=ManageCycle, conn=Depends(get_db)):
+    """DELIVERING -> AUDITING (all 7 closure checks pass) or -> RECONCILING (any check fails, logged as a
+    HIGH exception each) for the DSO to investigate before reconciling again."""
+    result = tracking_svc.reconcile_cycle(conn, cycle, user["user_id"])
+    conn.commit()
+    write_audit(user["user_id"], user["role"], "CYCLE_RECONCILED", "SUCCESS" if result["passed"] else "PARTIAL",
+               f"checks: {result['checks']}", "CYCLE", cycle, cycle)
+    return result
+
+
+@router.post("/cycles/{cycle}/close")
+def close_cycle(cycle: str, user=ManageCycle, conn=Depends(get_db)):
+    """AUDITING -> CLOSED. Only reachable once reconcile has actually passed every closure check."""
+    result = tracking_svc.close_cycle(conn, cycle, user["user_id"])
+    conn.commit()
+    write_audit(user["user_id"], user["role"], "CYCLE_CLOSED", "SUCCESS", "complete audit trail", "CYCLE", cycle, cycle)
+    return result

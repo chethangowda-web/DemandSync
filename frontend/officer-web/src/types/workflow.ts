@@ -1,18 +1,29 @@
-export type StageStatus = 'COMPLETE' | 'ACTIVE' | 'BLOCKED' | 'PENDING';
-export interface Stage { id:number; key:string; label:string; status:StageStatus; }
-export const STAGES: Stage[] = [
-  {id:1,key:'MONITOR',label:'01 MONITOR',status:'COMPLETE'},
-  {id:2,key:'VALIDATE',label:'02 VALIDATE',status:'COMPLETE'},
-  {id:3,key:'LOCK',label:'03 LOCK',status:'ACTIVE'},
-  {id:4,key:'ALLOCATE',label:'04 ALLOCATE',status:'PENDING'},
-  {id:5,key:'OPTIMIZE',label:'05 OPTIMIZE',status:'PENDING'},
-  {id:6,key:'AUTHORIZE',label:'06 AUTHORIZE',status:'PENDING'},
-  {id:7,key:'TRACK',label:'07 TRACK',status:'PENDING'},
-  {id:8,key:'DELIVER',label:'08 DELIVER',status:'PENDING'},
-  {id:9,key:'VERIFY',label:'09 VERIFY',status:'PENDING'},
-  {id:10,key:'RECONCILE',label:'10 RECONCILE',status:'PENDING'},
-  {id:11,key:'INSPECT',label:'11 INSPECT',status:'PENDING'},
-  {id:12,key:'AUDIT',label:'12 AUDIT',status:'PENDING'},
-  {id:13,key:'CLOSE',label:'13 CLOSE',status:'PENDING'},
+export type StageStatus = 'COMPLETE' | 'ACTIVE' | 'PENDING';
+export interface Stage { key: string; label: string; status: StageStatus; }
+
+// The real 11-state backend cycle machine (backend/services/beneficiary.py:CYCLE_STATES), grouped into
+// the 7 stages the DSO UI shows. Status is always computed from the cycle's actual `state` -- see
+// stagesFor() below -- never hardcoded.
+export const CYCLE_STATES = ['OPEN', 'MONITOR', 'LOCKED', 'ALLOCATED', 'OPTIMIZED', 'AUTHORIZED', 'TRACKING',
+  'DELIVERING', 'RECONCILING', 'AUDITING', 'CLOSED'] as const;
+
+const STAGE_DEFS: { key: string; label: string; states: string[] }[] = [
+  { key: 'MONITOR', label: '01 MONITOR', states: ['OPEN', 'MONITOR'] },
+  { key: 'LOCK', label: '02 LOCK', states: ['LOCKED'] },
+  { key: 'ALLOCATE', label: '03 ALLOCATE', states: ['ALLOCATED'] },
+  { key: 'OPTIMIZE', label: '04 OPTIMIZE', states: ['OPTIMIZED'] },
+  { key: 'AUTHORIZE', label: '05 AUTHORIZE', states: ['AUTHORIZED'] },
+  { key: 'TRACK', label: '06 TRACK & DELIVER', states: ['TRACKING', 'DELIVERING'] },
+  { key: 'CLOSE', label: '07 RECONCILE & CLOSE', states: ['RECONCILING', 'AUDITING', 'CLOSED'] },
 ];
-export interface AISignal { service:string; prediction:number; confidence:number; reason:string; supporting_data:any; model_version:string; generated_at:string; }
+
+export function stagesFor(cycleState: string): Stage[] {
+  const idx = CYCLE_STATES.indexOf(cycleState as any);
+  return STAGE_DEFS.map(d => {
+    const stateIdxs = d.states.map(s => CYCLE_STATES.indexOf(s as any));
+    const status: StageStatus = idx > Math.max(...stateIdxs) ? 'COMPLETE' : stateIdxs.includes(idx) ? 'ACTIVE' : 'PENDING';
+    return { key: d.key, label: d.label, status };
+  });
+}
+
+export interface AISignal { service: string; prediction: number; confidence: number; reason: string; supporting_data: any; model_version: string; generated_at: string; }

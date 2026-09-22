@@ -109,10 +109,10 @@ def test_optimize_twice_is_rejected(api, officers):
     assert again.status_code == 409 and again.json()["code"] == "CYCLE_ALREADY_OPTIMIZED"
 
 
-# Slice 3's manifest ids are always "MAN-" + 12 hex chars (16 total); the seeded dataset's own historical
-# manifests use short numeric ids ("MAN-000275") and already reference the same allocation_id values Slice
-# 2 upserts onto, so this length filter is how tests isolate what THIS run actually produced.
-MY_MANIFEST = "length(m.manifest_id) = 16"
+# Slice 3's manifest ids always start "MFO-"; the seeded dataset's own historical manifests use short
+# numeric ids ("MAN-000275") and already reference the same allocation_id values Slice 2 upserts onto, so
+# this prefix is how both the app and these tests isolate what the live workflow actually produced.
+MY_MANIFEST = "m.manifest_id LIKE 'MFO-%%'"
 
 
 def test_a_blocked_allocation_is_excluded_from_manifests_until_overridden(fresh_db, api, officers):

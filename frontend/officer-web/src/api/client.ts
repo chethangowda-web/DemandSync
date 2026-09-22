@@ -28,3 +28,5 @@ export async function api<T = any>(path: string, opts: RequestInit = {}): Promis
 
 export const post = <T = any>(path: string, body?: unknown) =>
   api<T>(path, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) });
+
+export const get = <T = any>(path: string) => api<T>(path);

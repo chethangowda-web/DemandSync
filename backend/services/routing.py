@@ -172,7 +172,7 @@ def optimize(conn, cycle: str, officer_id: str) -> dict:
                 if not stop_indices:
                     continue
                 vehicle = vehicles[v_idx]
-                mid = "MAN-" + uuid.uuid4().hex[:12].upper()
+                mid = "MFO-" + uuid.uuid4().hex[:12].upper()
                 total_kg = round(sum(stops[i]["demand_kg"] for i in stop_indices), 1)
 
                 # compute every leg first (dispatch_manifests must exist before vehicle_routes/items can
@@ -205,7 +205,7 @@ def optimize(conn, cycle: str, officer_id: str) -> dict:
                             """INSERT INTO dispatch_manifest_items (manifest_item_id, manifest_id, fps_id, commodity,
                                    planned_kg, sequence_number, allocation_id)
                                VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-                            ("MI-" + uuid.uuid4().hex[:12].upper(), mid, s["fps_id"], item["commodity"], item["kg"],
+                            ("MFI-" + uuid.uuid4().hex[:12].upper(), mid, s["fps_id"], item["commodity"], item["kg"],
                              leg["seq"], item["allocation_id"]))
                     stops_routed += 1
                 manifests_created += 1

@@ -15,12 +15,14 @@ from backend.db.conn import get_db
 from backend.services import allocation as allocation_svc
 from backend.services import demand as demand_svc
 from backend.services import forecast as forecast_svc
+from backend.services import routing as routing_svc
 from backend.services.beneficiary import one, rows
 
 router = APIRouter(prefix="/api/v1", tags=["dso"])
 ViewDemand = Depends(require_permission(Permission.VIEW_DEMAND))
 ViewCycle = Depends(require_permission(Permission.VIEW_CYCLE))
 ManageCycle = Depends(require_permission(Permission.MANAGE_CYCLE))
+ViewManifest = Depends(require_permission(Permission.VIEW_MANIFEST))
 
 
 @router.get("/cycles")
@@ -148,3 +150,28 @@ def override_allocation(cycle: str, fps_id: str, commodity: str, body: dict = Bo
     write_audit(user["user_id"], user["role"], "ALLOCATION_OVERRIDDEN", "SUCCESS", reason.strip(),
                "ALLOCATION", result["allocation_id"], cycle, before=str(result["before_kg"]), after=str(result["after_kg"]))
     return result
+
+
+# ---------------------------------------------------------------- Slice 3: ALLOCATED -> OPTIMIZED
+
+@router.post("/cycles/{cycle}/optimize")
+def run_optimize(cycle: str, user=ManageCycle, conn=Depends(get_db)):
+    """ALLOCATED -> OPTIMIZED. OR-Tools CVRP over haversine distance (not road distance — see
+    routing.py). Refuses while any HIGH-severity exception is still OPEN: the DSO must resolve or
+    override every blocking constraint violation before a route is planned."""
+    result = routing_svc.optimize(conn, cycle, user["user_id"])
+    conn.commit()  # release the cycles FOR UPDATE lock before auditing
+    write_audit(user["user_id"], user["role"], "CYCLE_OPTIMIZED", "SUCCESS",
+               f"{result['manifests_created']} manifests, {result['stops_routed']} stops routed, "
+               f"{result['stops_unroutable']} unroutable", "CYCLE", cycle, cycle)
+    return result
+
+
+@router.get("/cycles/{cycle}/manifests")
+def get_manifests(cycle: str, user=ViewManifest, conn=Depends(get_db)):
+    return {"cycle": cycle, "manifests": routing_svc.list_manifests(conn, cycle)}
+
+
+@router.get("/manifests/{manifest_id}")
+def get_manifest_detail(manifest_id: str, user=ViewManifest, conn=Depends(get_db)):
+    return routing_svc.manifest_detail(conn, manifest_id)

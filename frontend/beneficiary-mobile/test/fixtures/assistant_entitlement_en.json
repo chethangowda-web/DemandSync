@@ -1,0 +1,18 @@
+{
+  "answer": "In March 2026 you are entitled to 22 kg rice and 13 kg wheat (35 kg in all). 24 kg has been collected so far, so 11 kg remains.",
+  "intent": "ENTITLEMENT",
+  "language": "en",
+  "facts": {
+    "cycle": "2026-03",
+    "rice_kg": 22,
+    "wheat_kg": 13,
+    "total_kg": 35,
+    "collected_kg": 24,
+    "remaining_kg": 11
+  },
+  "source": "beneficiaries + epos_transactions",
+  "view": "entitlement",
+  "model": "rule-assistant-v1",
+  "generative": false,
+  "disclaimer": "This explains your records. It cannot change your entitlement or approve anything."
+}

@@ -1,0 +1,35 @@
+{
+  "beneficiary": {
+    "beneficiary_id": "BEN-000001",
+    "ration_card_id": "RC2023100000",
+    "name": "Sneha Samra",
+    "household_size": 7,
+    "scheme": "AAY",
+    "district": "BENGALURU_URBAN",
+    "taluk": "BEN-Taluk-2",
+    "status": "ACTIVE"
+  },
+  "entitlement_statutory": {
+    "rice_kg": 22,
+    "wheat_kg": 13,
+    "total_kg": 35
+  },
+  "fps": {
+    "fps_id": "FPS-0244",
+    "name": "Jan Seva Fair Price Shop 244",
+    "district": "BENGALURU_URBAN",
+    "taluk": "BEN-Taluk-2",
+    "latitude": 12.734986,
+    "longitude": 77.775407,
+    "opening_hours": "09:00-18:00",
+    "status": "ACTIVE"
+  },
+  "cycle": null,
+  "entitlement": null,
+  "intent": null,
+  "status_key": null,
+  "notice": {
+    "code": "NO_CYCLE",
+    "params": {}
+  }
+}

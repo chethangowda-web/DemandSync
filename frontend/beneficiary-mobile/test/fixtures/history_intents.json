@@ -1,0 +1,16 @@
+{
+  "kind": "intents",
+  "items": [
+    {
+      "reference": "INT-0002703",
+      "cycle": "2026-01",
+      "at": "2026-01-07T18:35:00+00:00",
+      "fps_id": "FPS-0244",
+      "fps_name": "Jan Seva Fair Price Shop 244",
+      "rice_kg": 20,
+      "wheat_kg": 12,
+      "total_kg": 32,
+      "status": "RECORDED"
+    }
+  ]
+}

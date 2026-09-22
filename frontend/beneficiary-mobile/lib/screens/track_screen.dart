@@ -1,37 +1,171 @@
 import 'package:flutter/material.dart';
-import '../services/api.dart';
+import 'package:provider/provider.dart';
 
-class TrackScreen extends StatefulWidget{ const TrackScreen({super.key}); @override State<TrackScreen> createState()=>_T();}
-class _T extends State<TrackScreen>{
-  Map<String,dynamic>? data; bool loading=true;
-  @override void initState(){ super.initState(); _load();}
-  Future<void> _load() async {
-    final t=await ApiService.getToken();
-    if(t!=null) data = await ApiService.tracking(t, '2026-03');
-    setState(()=>loading=false);
+import '../core/api_client.dart';
+import '../core/format.dart';
+import '../core/labels.dart';
+import '../core/models.dart';
+import '../core/theme.dart';
+import '../widgets/common.dart';
+
+/// "Where is my ration?" An eight-stage journey read from real records. A stage that has no record yet is shown
+/// as pending; nothing is estimated, and the vehicle position appears only if the vehicle actually reported one.
+class TrackScreen extends StatefulWidget {
+  const TrackScreen({super.key});
+
+  @override
+  State<TrackScreen> createState() => _TrackScreenState();
+}
+
+class _TrackScreenState extends State<TrackScreen> {
+  String? _cycle; // null = the current cycle
+
+  Future<({Journey journey, List<String> cycles})> _load(ApiClient api) async {
+    final journey = await api.tracking(cycle: _cycle);
+    final intents = await api.intents();
+    final cycles = {journey.cycle, for (final i in intents) i.cycle}.toList()..sort((a, b) => b.compareTo(a));
+    return (journey: journey, cycles: cycles);
   }
-  @override Widget build(BuildContext c){
-    if(loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    if(data==null) return const Scaffold(body: Center(child: Text('Data unavailable')));
-    final steps = (data!['steps'] as List);
-    final tel = data!['telemetry'];
-    return Scaffold(appBar: AppBar(title: const Text('Track My Ration')), body: SingleChildScrollView(padding: const EdgeInsets.all(14), child: Column(children:[
-      Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children:[const Text('Current Cycle', style: TextStyle(fontSize:11, color: Colors.black54)), Container(padding: const EdgeInsets.symmetric(horizontal:6, vertical:2), decoration: BoxDecoration(color: const Color(0xFF16A34A), borderRadius: BorderRadius.circular(6)), child: const Text('Active', style: TextStyle(color: Colors.white, fontSize:10)))]),
-        Text('September 2026', style: const TextStyle(fontWeight: FontWeight.bold)),
-        const SizedBox(height:10),
-        ...steps.map((s)=>Row(children:[
-          Container(width:20,height:20, decoration: BoxDecoration(shape: BoxShape.circle, color: s['status']=='DONE'?const Color(0xFF16A34A):s['status']=='ACTIVE'?const Color(0xFF0F2A44):Colors.grey.shade300), child: Icon(s['status']=='DONE'?Icons.check:s['status']=='ACTIVE'?Icons.circle:Icons.circle_outlined, size:12, color: Colors.white)),
-          const SizedBox(width:10), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-            Text(s['label'], style: TextStyle(fontWeight: s['status']=='ACTIVE'?FontWeight.bold:FontWeight.w500, fontSize:12)),
-            if(s['timestamp']!=null) Text(s['timestamp'], style: const TextStyle(fontSize:10, color: Colors.black54)),
-          ])),
-        ])),
-        const SizedBox(height:8),
-        Container(height:120, decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(8)), child: Center(child: tel!=null ? Text('Vehicle ${tel['vehicle_id']} — ${tel['latitude']},${tel['longitude']} — ${tel['speed_kmph']} kmph — ${tel['status']}') : const Text('Live location unavailable — real telemetry gap (12% of vehicles)', style: TextStyle(fontSize:11)))),
-        const SizedBox(height:8),
-        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFFF0F9FF), borderRadius: BorderRadius.circular(8)), child: const Row(children:[Icon(Icons.smart_toy, size:16, color: Color(0xFF0F2A44)), SizedBox(width:6), Expanded(child: Text('AI Update: Your ration dispatch status is derived from real dispatch_manifests + vehicle_telemetry. No fake truck.', style: TextStyle(fontSize:11)))])),
-      ])),
-    ])));
+
+  @override
+  Widget build(BuildContext context) {
+    final l = tr(context);
+    final api = context.read<ApiClient>();
+    final loc = Localizations.localeOf(context).languageCode;
+    return Scaffold(
+      appBar: AppBar(title: Text(l.trackTitle), actions: const [LanguageButton()]),
+      body: AsyncBody<({Journey journey, List<String> cycles})>(
+        key: ValueKey(_cycle),
+        load: () => _load(api),
+        builder: (context, data, reload) {
+          final j = data.journey;
+          final t = Theme.of(context).textTheme;
+          return RefreshIndicator(
+            onRefresh: reload,
+            child: ListView(padding: const EdgeInsets.all(16), children: [
+              if (data.cycles.length > 1)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Wrap(spacing: 8, runSpacing: 8, children: [
+                    for (final c in data.cycles)
+                      ChoiceChip(
+                        label: Text(cycleLabel(c, loc)),
+                        selected: c == j.cycle,
+                        onSelected: (_) => setState(() => _cycle = c),
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
+                      ),
+                  ]),
+                ),
+              Semantics(header: true, child: Text(l.journeyOf(cycleLabel(j.cycle, loc)), style: t.titleLarge)),
+              const SizedBox(height: 12),
+              SectionCard(
+                padding: const EdgeInsets.fromLTRB(16, 18, 16, 6),
+                child: Column(children: [for (var i = 0; i < j.steps.length; i++) _StepTile(step: j.steps[i], last: i == j.steps.length - 1)]),
+              ),
+              if (j.telemetry != null) _VehicleCard(j: j) else if (j.telemetryNote == 'LIVE_LOCATION_UNAVAILABLE') _NoLocationCard(),
+            ]),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _StepTile extends StatelessWidget {
+  const _StepTile({required this.step, required this.last});
+  final JourneyStep step;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = tr(context);
+    final loc = Localizations.localeOf(context).languageCode;
+    final t = Theme.of(context).textTheme;
+    final (icon, color, tone) = switch (step.status) {
+      'DONE' => (Icons.check_circle_rounded, AppColors.good, Tone.good),
+      'ACTIVE' => (Icons.radio_button_checked_rounded, AppColors.blue, Tone.info),
+      'DELAYED' => (Icons.pause_circle_rounded, AppColors.warn, Tone.warn),
+      'UNAVAILABLE' => (Icons.remove_circle_outline_rounded, AppColors.textMuted, Tone.neutral),
+      _ => (Icons.radio_button_unchecked_rounded, AppColors.border, Tone.neutral),
+    };
+    final detail = stepDetailText(l, step);
+    final pending = step.status == 'PENDING';
+    return Semantics(
+      container: true,
+      label: '${stageLabel(l, step.key)}. ${stepStateLabel(l, step.status)}.${step.at != null ? ' ${dateTimeText(step.at!, loc)}.' : ''} $detail',
+      excludeSemantics: true,
+      child: IntrinsicHeight(
+        child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          SizedBox(
+            width: 34,
+            child: Column(children: [
+              Icon(icon, color: color, size: 30),
+              if (!last) Expanded(child: Container(width: 3, margin: const EdgeInsets.symmetric(vertical: 2), color: step.status == 'DONE' ? AppColors.good.withValues(alpha: 0.5) : AppColors.border)),
+            ]),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 18),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(stageLabel(l, step.key), style: t.titleMedium?.copyWith(color: pending ? AppColors.textMuted : AppColors.text)),
+                const SizedBox(height: 4),
+                Wrap(spacing: 8, runSpacing: 4, crossAxisAlignment: WrapCrossAlignment.center, children: [
+                  StatusChip(label: pending ? l.notYetAvailable : stepStateLabel(l, step.status), tone: tone),
+                  if (step.at != null) Text(dateTimeText(step.at!, loc), style: t.bodyMedium?.copyWith(color: AppColors.textMuted)),
+                ]),
+                if (detail.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 6), child: Text(detail, style: t.bodyMedium?.copyWith(color: AppColors.textMuted))),
+              ]),
+            ),
+          ),
+        ]),
+      ),
+    );
+  }
+}
+
+class _VehicleCard extends StatelessWidget {
+  const _VehicleCard({required this.j});
+  final Journey j;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = tr(context);
+    final loc = Localizations.localeOf(context).languageCode;
+    final v = j.telemetry!;
+    return SectionCard(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [const Icon(Icons.local_shipping_rounded, color: AppColors.blue), const SizedBox(width: 10), Text(l.liveTracking, style: Theme.of(context).textTheme.titleMedium)]),
+        const SizedBox(height: 8),
+        KeyValueRow(label: l.vehicleLabel, value: v.vehicleNumber),
+        KeyValueRow(label: l.lastUpdate, value: dateTimeText(v.lastUpdate, loc)),
+        KeyValueRow(label: l.locationLabel, value: '${v.latitude.toStringAsFixed(5)}, ${v.longitude.toStringAsFixed(5)}'),
+        if (j.route != null) ...[
+          KeyValueRow(label: l.trackTitle, value: l.routeStop('${j.route!.yourStop}', '${j.route!.stopsTotal}')),
+          if (j.route!.plannedEtaMinutes != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(l.plannedEta(kgText(j.route!.plannedEtaMinutes!)), style: const TextStyle(color: AppColors.textMuted))),
+        ],
+      ]),
+    );
+  }
+}
+
+class _NoLocationCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final l = tr(context);
+    return SectionCard(
+      tone: Tone.neutral,
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Icon(Icons.location_off_rounded, color: AppColors.textMuted),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(l.liveLocationUnavailable, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 4),
+            Text(l.liveLocationUnavailableBody),
+          ]),
+        ),
+      ]),
+    );
   }
 }

@@ -1,0 +1,52 @@
+{
+  "fps": [
+    {
+      "fps_id": "FPS-0249",
+      "name": "Laxmi Fair Price Shop 249",
+      "district": "SHIVAMOGGA",
+      "taluk": "SHI-Taluk-4",
+      "latitude": 13.724589,
+      "longitude": 75.641912,
+      "opening_hours": "09:00-18:00",
+      "status": "SUSPENDED",
+      "is_current": true,
+      "distance_km": 1.5
+    },
+    {
+      "fps_id": "FPS-0012",
+      "name": "Samridhi Fair Price Shop 012",
+      "district": "SHIVAMOGGA",
+      "taluk": "SHI-Taluk-4",
+      "latitude": 13.786001,
+      "longitude": 75.670479,
+      "opening_hours": "09:00-18:00",
+      "status": "ACTIVE",
+      "is_current": false,
+      "distance_km": 6.1
+    },
+    {
+      "fps_id": "FPS-0393",
+      "name": "Santosh Fair Price Shop 393",
+      "district": "SHIVAMOGGA",
+      "taluk": "SHI-Taluk-4",
+      "latitude": 13.719214,
+      "longitude": 75.696379,
+      "opening_hours": "09:00-18:00",
+      "status": "ACTIVE",
+      "is_current": false,
+      "distance_km": 6.2
+    },
+    {
+      "fps_id": "FPS-0549",
+      "name": "Chamundi Fair Price Shop 549",
+      "district": "SHIVAMOGGA",
+      "taluk": "SHI-Taluk-4",
+      "latitude": 13.703524,
+      "longitude": 75.716019,
+      "opening_hours": "09:00-18:00",
+      "status": "ACTIVE",
+      "is_current": false,
+      "distance_km": 8.8
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "detail": "Enter a quantity greater than zero. Negative quantities are not allowed.",
+  "code": "INVALID_QUANTITY"
+}

@@ -1,0 +1,70 @@
+{
+  "cycle": "2026-02",
+  "cycle_state": "TRACKING",
+  "fps_id": "FPS-0126",
+  "steps": [
+    {
+      "key": "INTENT_SUBMITTED",
+      "status": "DONE",
+      "at": "2026-02-10T09:42:00+00:00",
+      "detail": "INT-0011999"
+    },
+    {
+      "key": "DEMAND_PLANNED",
+      "status": "DONE",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "ALLOCATED",
+      "status": "DONE",
+      "at": "2025-12-29T11:00:00+00:00",
+      "detail": null
+    },
+    {
+      "key": "DISPATCHED",
+      "status": "DONE",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "IN_TRANSIT",
+      "status": "ACTIVE",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "RECEIVED_AT_FPS",
+      "status": "PENDING",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "AVAILABLE_FOR_COLLECTION",
+      "status": "PENDING",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "COLLECTED",
+      "status": "DONE",
+      "at": "2026-02-25T09:00:00+00:00",
+      "detail": "RICE:6"
+    }
+  ],
+  "headline": "DISPATCHED",
+  "telemetry": {
+    "vehicle_number": "KA-26-SA-9588",
+    "latitude": 13.128155,
+    "longitude": 77.587492,
+    "speed_kmph": 0,
+    "status": "DELIVERED",
+    "last_update": "2026-02-05T17:35:00+00:00"
+  },
+  "route": {
+    "stops_total": 6,
+    "your_stop": 6,
+    "planned_eta_minutes": 61
+  },
+  "telemetry_note": null
+}

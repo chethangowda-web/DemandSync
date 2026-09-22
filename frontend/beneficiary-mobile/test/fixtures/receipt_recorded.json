@@ -1,0 +1,21 @@
+{
+  "reference": "INT-2026-000002",
+  "cycle": "2026-03",
+  "status": "RECORDED",
+  "fps": {
+    "fps_id": "FPS-0244",
+    "name": "Jan Seva Fair Price Shop 244",
+    "district": "BENGALURU_URBAN",
+    "taluk": "BEN-Taluk-2",
+    "latitude": 12.734986,
+    "longitude": 77.775407,
+    "opening_hours": "09:00-18:00",
+    "status": "ACTIVE"
+  },
+  "rice_kg": 4,
+  "wheat_kg": 7,
+  "total_kg": 11,
+  "collection_mode": "SELF",
+  "submitted_at": "2026-09-21T20:38:25.085011+00:00",
+  "can_cancel": true
+}

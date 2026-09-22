@@ -1,0 +1,63 @@
+{
+  "cycle": "2026-01",
+  "cycle_state": "TRACKING",
+  "fps_id": "FPS-0462",
+  "steps": [
+    {
+      "key": "INTENT_SUBMITTED",
+      "status": "DONE",
+      "at": "2026-01-14T17:53:00+00:00",
+      "detail": "INT-0003347"
+    },
+    {
+      "key": "DEMAND_PLANNED",
+      "status": "DONE",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "ALLOCATED",
+      "status": "DONE",
+      "at": "2025-12-29T11:00:00+00:00",
+      "detail": null
+    },
+    {
+      "key": "DISPATCHED",
+      "status": "DONE",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "IN_TRANSIT",
+      "status": "ACTIVE",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "RECEIVED_AT_FPS",
+      "status": "PENDING",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "AVAILABLE_FOR_COLLECTION",
+      "status": "PENDING",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "COLLECTED",
+      "status": "PENDING",
+      "at": null,
+      "detail": null
+    }
+  ],
+  "headline": "DISPATCHED",
+  "telemetry": null,
+  "route": {
+    "stops_total": 12,
+    "your_stop": 1,
+    "planned_eta_minutes": 40
+  },
+  "telemetry_note": "LIVE_LOCATION_UNAVAILABLE"
+}

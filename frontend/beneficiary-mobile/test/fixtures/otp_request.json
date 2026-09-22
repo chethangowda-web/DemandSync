@@ -1,0 +1,7 @@
+{
+  "message": "OTP sent",
+  "expires_in": 300,
+  "provider": "dev",
+  "dev_otp": "123456",
+  "note": "DEV MODE: the code is returned here because no SMS gateway is configured"
+}

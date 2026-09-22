@@ -1,0 +1,7 @@
+{
+  "detail": "Your collection preference has already been submitted for this cycle.",
+  "code": "INTENT_DUPLICATE",
+  "params": {
+    "reference": "INT-2026-000002"
+  }
+}

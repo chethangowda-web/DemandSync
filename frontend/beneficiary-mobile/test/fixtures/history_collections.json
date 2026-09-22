@@ -1,0 +1,19 @@
+{
+  "kind": "collections",
+  "items": [
+    {
+      "cycle": "2026-03",
+      "fps_id": "FPS-0244",
+      "fps_name": "Jan Seva Fair Price Shop 244",
+      "at": "2026-03-23T16:00:00+00:00",
+      "rice_kg": 18,
+      "wheat_kg": 6,
+      "total_kg": 24,
+      "transactions": 2,
+      "transaction_ids": [
+        "EPOS-00010413",
+        "EPOS-00010414"
+      ]
+    }
+  ]
+}

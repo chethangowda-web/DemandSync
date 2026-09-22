@@ -1,0 +1,59 @@
+{
+  "cycle": "2026-02",
+  "cycle_state": "DELIVERING",
+  "fps_id": "FPS-0343",
+  "steps": [
+    {
+      "key": "INTENT_SUBMITTED",
+      "status": "DONE",
+      "at": "2026-02-19T15:12:00+00:00",
+      "detail": "INT-0011979"
+    },
+    {
+      "key": "DEMAND_PLANNED",
+      "status": "DONE",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "ALLOCATED",
+      "status": "DONE",
+      "at": "2025-12-29T11:00:00+00:00",
+      "detail": null
+    },
+    {
+      "key": "DISPATCHED",
+      "status": "DONE",
+      "at": null,
+      "detail": "INFERRED_FROM_DELIVERY"
+    },
+    {
+      "key": "IN_TRANSIT",
+      "status": "DONE",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "RECEIVED_AT_FPS",
+      "status": "DONE",
+      "at": "2026-02-09T00:00:00+00:00",
+      "detail": "VERIFIED"
+    },
+    {
+      "key": "AVAILABLE_FOR_COLLECTION",
+      "status": "DONE",
+      "at": "2026-02-09T00:00:00+00:00",
+      "detail": null
+    },
+    {
+      "key": "COLLECTED",
+      "status": "ACTIVE",
+      "at": null,
+      "detail": null
+    }
+  ],
+  "headline": "AVAILABLE_FOR_COLLECTION",
+  "telemetry": null,
+  "route": null,
+  "telemetry_note": null
+}

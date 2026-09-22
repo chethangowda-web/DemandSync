@@ -1,0 +1,19 @@
+{
+  "transaction_id": "EPOS-00010413",
+  "receipt_number": "RCT936233",
+  "cycle": "2026-03",
+  "beneficiary_name": "Sneha Samra",
+  "ration_card_id": "RC2023100000",
+  "fps": {
+    "fps_id": "FPS-0244",
+    "name": "Jan Seva Fair Price Shop 244",
+    "district": "BENGALURU_URBAN",
+    "taluk": "BEN-Taluk-2"
+  },
+  "commodity": "RICE",
+  "quantity_kg": 18,
+  "transaction_time": "2026-03-23T16:00:00+00:00",
+  "status": "SUCCESS",
+  "verification_ref": "B07FC3309CEDBAF1",
+  "qr_payload": "DSYNC|EPOS-00010413|B07FC3309CEDBAF1"
+}

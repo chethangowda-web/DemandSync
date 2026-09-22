@@ -1,0 +1,59 @@
+{
+  "cycle": "2026-03",
+  "cycle_state": "OPEN",
+  "fps_id": "FPS-0244",
+  "steps": [
+    {
+      "key": "INTENT_SUBMITTED",
+      "status": "DONE",
+      "at": "2026-09-21T20:38:25.085011+00:00",
+      "detail": "INT-2026-000002"
+    },
+    {
+      "key": "DEMAND_PLANNED",
+      "status": "ACTIVE",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "ALLOCATED",
+      "status": "PENDING",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "DISPATCHED",
+      "status": "PENDING",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "IN_TRANSIT",
+      "status": "PENDING",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "RECEIVED_AT_FPS",
+      "status": "PENDING",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "AVAILABLE_FOR_COLLECTION",
+      "status": "PENDING",
+      "at": null,
+      "detail": null
+    },
+    {
+      "key": "COLLECTED",
+      "status": "DONE",
+      "at": "2026-03-23T16:00:00+00:00",
+      "detail": "RICE:18, WHEAT:6"
+    }
+  ],
+  "headline": "INTENT_SUBMITTED",
+  "telemetry": null,
+  "route": null,
+  "telemetry_note": null
+}

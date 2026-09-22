@@ -1,0 +1,15 @@
+{
+  "answer": "You have already submitted a plan (INT-2026-000002). Only one plan is allowed per cycle. While the window is open you can cancel it and submit a new one.",
+  "intent": "CANT_SUBMIT",
+  "language": "en",
+  "facts": {
+    "cycle": "2026-03",
+    "reason": "INTENT_DUPLICATE",
+    "reference": "INT-2026-000002"
+  },
+  "source": "cycles + intent_signals + epos_transactions + fps",
+  "view": "plan",
+  "model": "rule-assistant-v1",
+  "generative": false,
+  "disclaimer": "This explains your records. It cannot change your entitlement or approve anything."
+}

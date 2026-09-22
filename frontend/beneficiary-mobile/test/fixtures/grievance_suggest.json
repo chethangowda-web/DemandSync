@@ -1,0 +1,29 @@
+{
+  "category": "TRANSACTION_FAILURE",
+  "confidence": 90,
+  "reason": "Matched keywords in your description",
+  "summary": "The biometric machine failed and my transaction did not go through",
+  "related_transactions": [
+    {
+      "transaction_id": "EPOS-00010413",
+      "cycle": "2026-03",
+      "commodity": "RICE",
+      "quantity_kg": 18,
+      "status": "SUCCESS",
+      "at": "2026-03-23T16:00:00+00:00",
+      "fps_name": "Jan Seva Fair Price Shop 244"
+    },
+    {
+      "transaction_id": "EPOS-00010414",
+      "cycle": "2026-03",
+      "commodity": "WHEAT",
+      "quantity_kg": 6,
+      "status": "SUCCESS",
+      "at": "2026-03-20T09:00:00+00:00",
+      "fps_name": "Jan Seva Fair Price Shop 244"
+    }
+  ],
+  "model": "rule-assistant-v1",
+  "generative": false,
+  "requires_confirmation": true
+}

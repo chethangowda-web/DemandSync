@@ -1,0 +1,18 @@
+{
+  "answer": "मार्च 2026 में आप 22 किग्रा चावल और 13 किग्रा गेहूँ (कुल 35 किग्रा) के पात्र हैं। अब तक 24 किग्रा लिया जा चुका है, इसलिए 11 किग्रा बाकी है।",
+  "intent": "ENTITLEMENT",
+  "language": "hi",
+  "facts": {
+    "cycle": "2026-03",
+    "rice_kg": 22,
+    "wheat_kg": 13,
+    "total_kg": 35,
+    "collected_kg": 24,
+    "remaining_kg": 11
+  },
+  "source": "beneficiaries + epos_transactions",
+  "view": "entitlement",
+  "model": "rule-assistant-v1",
+  "generative": false,
+  "disclaimer": "यह आपके रिकॉर्ड समझाता है। यह आपकी पात्रता नहीं बदल सकता और कुछ मंज़ूर नहीं कर सकता।"
+}

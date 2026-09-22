@@ -1,0 +1,7 @@
+{
+  "detail": "The choice window for this cycle is closed.",
+  "code": "CHOICE_WINDOW_CLOSED",
+  "params": {
+    "cycle": "2026-03"
+  }
+}

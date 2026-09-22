@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
 from backend.core import otp as otp_service
+from backend.core.errors import ApiError
 from backend.core.audit import write_audit
 from backend.core.auth_middleware import (BENEFICIARY_LOGIN_STATUSES, MSG_DISABLED, OFFICER_LOGIN_STATUSES,
                                           get_current_user, require_permission)
@@ -42,23 +43,37 @@ class ChangePassword(BaseModel):
 
 # ------------------------------------------------------------------ beneficiary
 
+def _otp_error(reason: str) -> ApiError:
+    """Turn an OTP failure reason into a stable code the mobile app can localise."""
+    import re
+    m = re.match(r"Invalid OTP\. (\d) attempts remaining", reason)
+    if m:
+        return ApiError(401, "OTP_INVALID", reason, {"attempts_left": int(m.group(1))})
+    table = (("Invalid OTP", "OTP_INVALID_LAST"), ("No OTP requested", "OTP_NOT_REQUESTED"), ("OTP already used", "OTP_USED"),
+             ("OTP expired", "OTP_EXPIRED"), ("Too many attempts", "OTP_TOO_MANY_ATTEMPTS"))
+    code = next((c for prefix, c in table if reason.startswith(prefix)), "OTP_FAILED")
+    return ApiError(401, code, reason)
+
+
 @router.post("/beneficiary/request-otp")
 def beneficiary_request_otp(req: BeneficiaryRequestOtp, conn=Depends(get_db)):
     rc = req.ration_card_id
     row = conn.execute("SELECT registered_mobile, status FROM beneficiaries WHERE ration_card_id = %s", (rc,)).fetchone()
     if not row or not hmac.compare_digest(row[0], req.registered_mobile):
         write_audit(rc, "BENEFICIARY", "LOGIN_FAILURE", "FAIL", "Unknown ration card or mobile mismatch")
-        raise HTTPException(401, MSG_BAD_CREDENTIALS)  # same answer for both: no account enumeration
+        raise ApiError(401, "BAD_CREDENTIALS", MSG_BAD_CREDENTIALS)  # same answer for both: no account enumeration
     if row[1] not in BENEFICIARY_LOGIN_STATUSES:
         write_audit(rc, "BENEFICIARY", "ACCOUNT_DISABLED", "FAIL", f"status {row[1]}")
-        raise HTTPException(401, MSG_DISABLED)
+        raise ApiError(401, "ACCOUNT_DISABLED", MSG_DISABLED)
     try:
         result = otp_service.request_otp(conn, rc)
     except otp_service.OtpProviderNotConfigured:
-        raise HTTPException(503, "OTP delivery is not available right now. Please try again later.")
+        raise ApiError(503, "OTP_UNAVAILABLE", "OTP delivery is not available right now. Please try again later.")
     except otp_service.OtpThrottled as e:
         write_audit(rc, "BENEFICIARY", "OTP_REQUEST_THROTTLED", "FAIL", f"cooldown {e.retry_after}s")
-        raise HTTPException(429, str(e), headers={"Retry-After": str(e.retry_after)})
+        err = ApiError(429, "OTP_COOLDOWN", str(e), {"retry_after": e.retry_after})
+        err.headers = {"Retry-After": str(e.retry_after)}
+        raise err
     conn.commit()
     write_audit(rc, "BENEFICIARY", "OTP_SENT", "SUCCESS")
     return result
@@ -70,15 +85,15 @@ def beneficiary_verify_otp(req: BeneficiaryVerifyOtp, conn=Depends(get_db)):
     row = conn.execute("SELECT beneficiary_id, status FROM beneficiaries WHERE ration_card_id = %s", (rc,)).fetchone()
     if not row:
         write_audit(rc, "BENEFICIARY", "OTP_FAILURE", "FAIL", "Unknown ration card")
-        raise HTTPException(401, MSG_BAD_CREDENTIALS)
+        raise ApiError(401, "BAD_CREDENTIALS", MSG_BAD_CREDENTIALS)
     valid, reason = otp_service.verify_otp(conn, rc, req.otp)
     conn.commit()  # failed attempts must persist even though we raise below
     if not valid:
         write_audit(rc, "BENEFICIARY", "OTP_FAILURE", "FAIL", reason)
-        raise HTTPException(401, reason)
+        raise _otp_error(reason)
     if row[1] not in BENEFICIARY_LOGIN_STATUSES:
         write_audit(rc, "BENEFICIARY", "ACCOUNT_DISABLED", "FAIL", f"status {row[1]}")
-        raise HTTPException(401, MSG_DISABLED)
+        raise ApiError(401, "ACCOUNT_DISABLED", MSG_DISABLED)
     write_audit(rc, "BENEFICIARY", "OTP_VERIFIED", "SUCCESS")
     write_audit(rc, "BENEFICIARY", "LOGIN_SUCCESS", "SUCCESS")
     return {"access_token": create_access_token(rc, Role.BENEFICIARY.value), "token_type": "bearer",

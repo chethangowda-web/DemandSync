@@ -1,0 +1,57 @@
+{
+  "beneficiary": {
+    "beneficiary_id": "BEN-000040",
+    "ration_card_id": "RC2023100039",
+    "name": "Bhanumati Chandran",
+    "household_size": 4,
+    "scheme": "AAY",
+    "district": "BENGALURU_URBAN",
+    "taluk": "BEN-Taluk-4",
+    "status": "ACTIVE"
+  },
+  "entitlement_statutory": {
+    "rice_kg": 22,
+    "wheat_kg": 13,
+    "total_kg": 35
+  },
+  "fps": {
+    "fps_id": "FPS-0501",
+    "name": "Santosh Fair Price Shop 501",
+    "district": "BENGALURU_URBAN",
+    "taluk": "BEN-Taluk-4",
+    "latitude": 13.136688,
+    "longitude": 77.601702,
+    "opening_hours": "09:00-18:00",
+    "status": "ACTIVE"
+  },
+  "cycle": {
+    "cycle": "2026-03",
+    "state": "LOCKED",
+    "window_open": false,
+    "period_start": "2026-03-01",
+    "period_end": "2026-03-31",
+    "choice_window_start": "2026-03-05",
+    "choice_window_end": "2026-03-20"
+  },
+  "entitlement": {
+    "cycle": "2026-03",
+    "scheme": "AAY",
+    "household_size": 4,
+    "rice_kg": 22,
+    "wheat_kg": 13,
+    "total_kg": 35,
+    "collected_rice_kg": 0,
+    "collected_wheat_kg": 0,
+    "collected_total_kg": 0,
+    "remaining_rice_kg": 22,
+    "remaining_wheat_kg": 13,
+    "remaining_total_kg": 35,
+    "source": "beneficiaries + epos_transactions (SUCCESS)"
+  },
+  "intent": null,
+  "status_key": "CHOICE_WINDOW_CLOSED",
+  "notice": {
+    "code": "WINDOW_CLOSED_NO_INTENT",
+    "params": {}
+  }
+}

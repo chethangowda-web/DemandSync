@@ -1,0 +1,18 @@
+{
+  "answer": "ಮಾರ್ಚ್ 2026 ರಲ್ಲಿ ನೀವು 22 ಕೆಜಿ ಅಕ್ಕಿ ಮತ್ತು 13 ಕೆಜಿ ಗೋಧಿ (ಒಟ್ಟು 35 ಕೆಜಿ) ಪಡೆಯಲು ಅರ್ಹರು. ಇದುವರೆಗೆ 24 ಕೆಜಿ ಪಡೆದಿದ್ದೀರಿ, ಆದ್ದರಿಂದ 11 ಕೆಜಿ ಉಳಿದಿದೆ.",
+  "intent": "ENTITLEMENT",
+  "language": "kn",
+  "facts": {
+    "cycle": "2026-03",
+    "rice_kg": 22,
+    "wheat_kg": 13,
+    "total_kg": 35,
+    "collected_kg": 24,
+    "remaining_kg": 11
+  },
+  "source": "beneficiaries + epos_transactions",
+  "view": "entitlement",
+  "model": "rule-assistant-v1",
+  "generative": false,
+  "disclaimer": "ಇದು ನಿಮ್ಮ ದಾಖಲೆಗಳನ್ನು ವಿವರಿಸುತ್ತದೆ. ಇದು ನಿಮ್ಮ ಅರ್ಹತೆಯನ್ನು ಬದಲಾಯಿಸಲು ಅಥವಾ ಯಾವುದನ್ನೂ ಅನುಮೋದಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ."
+}

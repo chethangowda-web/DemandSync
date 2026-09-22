@@ -1,0 +1,76 @@
+{
+  "fps": [
+    {
+      "fps_id": "FPS-0244",
+      "name": "Jan Seva Fair Price Shop 244",
+      "district": "BENGALURU_URBAN",
+      "taluk": "BEN-Taluk-2",
+      "latitude": 12.734986,
+      "longitude": 77.775407,
+      "opening_hours": "09:00-18:00",
+      "status": "ACTIVE",
+      "is_current": true,
+      "distance_km": 3.4
+    },
+    {
+      "fps_id": "FPS-0519",
+      "name": "Jan Seva Fair Price Shop 519",
+      "district": "BENGALURU_URBAN",
+      "taluk": "BEN-Taluk-2",
+      "latitude": 12.741408,
+      "longitude": 77.736194,
+      "opening_hours": "09:00-18:00",
+      "status": "ACTIVE",
+      "is_current": false,
+      "distance_km": 7.0
+    },
+    {
+      "fps_id": "FPS-0344",
+      "name": "Bharat Fair Price Shop 344",
+      "district": "BENGALURU_URBAN",
+      "taluk": "BEN-Taluk-3",
+      "latitude": 12.735165,
+      "longitude": 77.863993,
+      "opening_hours": "09:00-18:00",
+      "status": "ACTIVE",
+      "is_current": false,
+      "distance_km": 7.3
+    },
+    {
+      "fps_id": "FPS-0419",
+      "name": "Santosh Fair Price Shop 419",
+      "district": "BENGALURU_URBAN",
+      "taluk": "BEN-Taluk-3",
+      "latitude": 12.805051,
+      "longitude": 77.846649,
+      "opening_hours": "09:00-18:00",
+      "status": "ACTIVE",
+      "is_current": false,
+      "distance_km": 7.6
+    },
+    {
+      "fps_id": "FPS-0369",
+      "name": "Tunga Fair Price Shop 369",
+      "district": "BENGALURU_URBAN",
+      "taluk": "BEN-Taluk-4",
+      "latitude": 12.803392,
+      "longitude": 77.85454,
+      "opening_hours": "09:00-18:00",
+      "status": "ACTIVE",
+      "is_current": false,
+      "distance_km": 8.1
+    },
+    {
+      "fps_id": "FPS-0394",
+      "name": "Shakti Fair Price Shop 394",
+      "district": "BENGALURU_URBAN",
+      "taluk": "BEN-Taluk-2",
+      "latitude": 12.752123,
+      "longitude": 77.701706,
+      "opening_hours": "09:00-18:00",
+      "status": "ACTIVE",
+      "is_current": false,
+      "distance_km": 10.6
+    }
+  ]
+}

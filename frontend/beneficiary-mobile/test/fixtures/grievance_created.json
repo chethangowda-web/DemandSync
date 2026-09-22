@@ -1,0 +1,12 @@
+{
+  "grievance_id": "GRV-100001",
+  "category": "TRANSACTION_FAILURE",
+  "description": "The biometric machine failed and my transaction did not go through",
+  "status": "OPEN",
+  "resolution": null,
+  "created_at": "2026-09-21T20:38:26.172496+00:00",
+  "resolved_at": null,
+  "fps_id": "FPS-0244",
+  "cycle": null,
+  "related_transaction_id": null
+}

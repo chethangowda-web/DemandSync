@@ -1,0 +1,10 @@
+{
+  "detail": "Requested quantity exceeds your remaining entitlement (rice 4 kg, wheat 7 kg).",
+  "code": "EXCEEDS_REMAINING",
+  "params": {
+    "rice": {
+      "requested_kg": 50,
+      "remaining_kg": 4
+    }
+  }
+}

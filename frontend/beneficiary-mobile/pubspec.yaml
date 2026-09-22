@@ -1,18 +1,27 @@
 name: demandsync_beneficiary
-description: DemandSYNC Beneficiary Mobile — PDS PREDICT
+description: DemandSYNC beneficiary mobile app (PDS PREDICT). A citizen service journey backed by the real DemandSYNC API.
 publish_to: 'none'
-version: 0.1.0+1
+version: 1.0.0+1
+
 environment:
-  sdk: ">=3.2.0 <4.0.0"
+  sdk: ">=3.4.0 <4.0.0"
+
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.2.0
-  shared_preferences: ^2.2.0
-  intl: ^0.19.0
+  flutter_localizations:
+    sdk: flutter
+  http: ^1.2.2
+  intl: any
+  provider: ^6.1.2
+  shared_preferences: ^2.3.2
+  qr_flutter: ^4.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+
 flutter:
   uses-material-design: true
+  generate: true

@@ -1,1 +1,465 @@
-{ "@@locale": "en", "appTitle": "DemandSYNC", "planCollection": "Plan My Collection", "trackRation": "Track My Ration" }
+{
+  "@@locale": "en",
+  "appName": "DemandSYNC",
+  "appTagline": "Your Ration. Your Rights. Our Priority.",
+  "welcomeBody": "A simple, secure and transparent way to plan, track and receive your ration.",
+  "getStarted": "Get started",
+  "language": "Language",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+  "retry": "Try again",
+  "back": "Back",
+  "close": "Close",
+  "done": "Done",
+  "continueBtn": "Continue",
+  "kgValue": "{value} kg",
+  "@kgValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "dataUnavailable": "Data unavailable",
+  "loading": "Loading…",
+  "loginTitle": "Welcome back",
+  "loginSubtitle": "Sign in to see your ration details",
+  "rationCardLabel": "Ration card number",
+  "mobileLabel": "Registered mobile number",
+  "sendOtp": "Send OTP",
+  "otpTitle": "Enter the OTP",
+  "otpSentTo": "We sent a 6-digit code to {mobile}",
+  "@otpSentTo": {
+    "placeholders": {
+      "mobile": {
+        "type": "String"
+      }
+    }
+  },
+  "otpLabel": "6-digit OTP",
+  "verifyContinue": "Verify and continue",
+  "resendOtp": "Resend OTP",
+  "resendIn": "Resend OTP in {seconds}s",
+  "@resendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "devModeBanner": "Development mode: no SMS is sent. Your code is {otp}.",
+  "@devModeBanner": {
+    "placeholders": {
+      "otp": {
+        "type": "String"
+      }
+    }
+  },
+  "useThisCode": "Use this code",
+  "changeNumber": "Change details",
+  "fieldRequired": "This field is required",
+  "otpInvalidLength": "Enter all 6 digits",
+  "loginHelp": "Use the ration card number and mobile number registered with your household.",
+  "navHome": "Home",
+  "navMyRation": "My Ration",
+  "navHistory": "History",
+  "navHelp": "Help",
+  "goodMorning": "Good morning",
+  "goodAfternoon": "Good afternoon",
+  "goodEvening": "Good evening",
+  "myPds": "My PDS",
+  "currentCycle": "Current cycle",
+  "collectionWindow": "Choice window: {start} to {end}",
+  "@collectionWindow": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "myEntitlement": "My entitlement",
+  "rice": "Rice",
+  "wheat": "Wheat",
+  "total": "Total",
+  "remaining": "Remaining",
+  "collected": "Collected",
+  "currentFps": "My fair price shop",
+  "fpsIdLabel": "Shop ID: {id}",
+  "@fpsIdLabel": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "openingHours": "Open {hours}",
+  "@openingHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "planMyCollection": "Plan my collection",
+  "viewMyPlan": "View my plan",
+  "trackMyRation": "Track my ration",
+  "viewEntitlement": "View entitlement",
+  "viewCycle": "About this cycle",
+  "rationCardShort": "Ration card {id}",
+  "@rationCardShort": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "signedInAs": "Signed in",
+  "stChoiceWindowOpen": "Choice window open",
+  "stChoiceWindowClosed": "Choice window closed",
+  "stIntentSubmitted": "Intent submitted",
+  "stDemandPlanned": "Demand planned",
+  "stAllocated": "Allocated",
+  "stDispatched": "Dispatched",
+  "stInTransit": "In transit",
+  "stReceivedAtFps": "Received at shop",
+  "stAvailableForCollection": "Available for collection",
+  "stCollected": "Collected",
+  "stateDone": "Done",
+  "stateActive": "In progress",
+  "statePending": "Not yet",
+  "stateDelayed": "On hold",
+  "stateUnavailable": "Not available",
+  "notYetAvailable": "Not yet available",
+  "noticePlanNow": "The choice window closes on {closes}. Plan your collection now.",
+  "@noticePlanNow": {
+    "placeholders": {
+      "closes": {
+        "type": "String"
+      }
+    }
+  },
+  "noticeIntentRecorded": "Your plan {ref} is recorded.",
+  "@noticeIntentRecorded": {
+    "placeholders": {
+      "ref": {
+        "type": "String"
+      }
+    }
+  },
+  "noticeRationAtFps": "Your ration has reached your shop. You can collect it.",
+  "noticeWindowClosedNoIntent": "The choice window is closed and no plan was submitted for this cycle.",
+  "noticeFpsNotActive": "Your shop {fps} is not active right now. Choose another shop when you plan.",
+  "@noticeFpsNotActive": {
+    "placeholders": {
+      "fps": {
+        "type": "String"
+      }
+    }
+  },
+  "noticeNoCycle": "There is no active cycle right now.",
+  "entitlementTitle": "My entitlement",
+  "monthlyEntitlement": "Monthly entitlement",
+  "alreadyCollected": "Already collected",
+  "remainingThisCycle": "Remaining this cycle",
+  "schemeLabel": "Scheme",
+  "schemeAAY": "Antyodaya (AAY)",
+  "schemePHH": "Priority household (PHH)",
+  "householdMembers": "{n} members",
+  "@householdMembers": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "householdLabel": "Household",
+  "entitlementExplain": "Your entitlement is based on your registered household and scheme information.",
+  "entitlementReadOnly": "It is set by the government. Your plan can never change it.",
+  "cycleTitle": "Current cycle",
+  "periodLabel": "Cycle period",
+  "windowLabel": "Choice window",
+  "statusLabel": "Status",
+  "whatThisMeans": "What this means",
+  "explainOpen": "You can plan what you want to collect this month. Submit your plan before the window closes.",
+  "explainClosedNoPlan": "The window is closed and you did not submit a plan, so nothing was planned for you this cycle.",
+  "explainPlanRecorded": "Your plan is recorded. Follow its progress under My Ration.",
+  "explainInProgress": "Your ration is moving through the supply chain. Follow it under My Ration.",
+  "planTitle": "Plan my collection",
+  "stepSelect": "Select",
+  "stepReview": "Review",
+  "stepSubmit": "Submit",
+  "chooseFps": "Choose your shop",
+  "nearestFirst": "Nearest first, in your district",
+  "distanceKm": "{km} km away",
+  "@distanceKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "yourCurrentShop": "Your current shop",
+  "shopNotActive": "Not active right now",
+  "chooseQuantity": "How much do you want to collect?",
+  "riceKg": "Rice (kg)",
+  "wheatKg": "Wheat (kg)",
+  "upTo": "Up to {max} kg",
+  "@upTo": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "collectionMode": "Who will collect?",
+  "modeSelf": "I will collect",
+  "modeAuthorized": "Authorized person",
+  "calcEntitlement": "Your entitlement",
+  "calcCollected": "Already collected",
+  "calcRemaining": "Remaining",
+  "calcRequested": "You are requesting",
+  "reviewPlan": "Review plan",
+  "enterQuantity": "Choose at least some rice or wheat",
+  "increase": "Increase {item}",
+  "@increase": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "decrease": "Decrease {item}",
+  "@decrease": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "selectedShop": "Selected shop {name}",
+  "@selectedShop": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewTitle": "Review your plan",
+  "reviewFps": "Shop",
+  "reviewMode": "Collected by",
+  "reviewCycle": "Cycle",
+  "reviewRemainingAfter": "Entitlement left after this plan",
+  "reviewWarning": "Please confirm these details before submitting. You cannot change your plan after the choice window closes.",
+  "submitIntent": "Submit collection intent",
+  "submitting": "Submitting…",
+  "intentRecorded": "Collection intent recorded",
+  "intentCancelled": "Plan cancelled",
+  "referenceLabel": "Reference",
+  "submittedOn": "Submitted on",
+  "statusRecorded": "Recorded",
+  "statusCancelled": "Cancelled",
+  "cancelPlan": "Cancel and change my plan",
+  "cancelConfirmTitle": "Cancel this plan?",
+  "cancelConfirmBody": "Your plan will be cancelled and you can submit a new one while the window is open.",
+  "keepPlan": "Keep my plan",
+  "yesCancel": "Yes, cancel it",
+  "backToHome": "Back to home",
+  "receiptTitle": "Intent receipt",
+  "trackTitle": "Track my ration",
+  "journeyOf": "Cycle {cycle}",
+  "@journeyOf": {
+    "placeholders": {
+      "cycle": {
+        "type": "String"
+      }
+    }
+  },
+  "liveTracking": "Vehicle tracking",
+  "vehicleLabel": "Vehicle",
+  "lastUpdate": "Last update",
+  "locationLabel": "Location",
+  "routeStop": "Your stop is {n} of {total}",
+  "@routeStop": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "plannedEta": "Planned arrival: about {min} min after departure",
+  "@plannedEta": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "liveLocationUnavailable": "LIVE LOCATION UNAVAILABLE",
+  "liveLocationUnavailableBody": "The vehicle has not shared a location. Nothing is estimated or made up.",
+  "detailNoIntent": "You did not submit a plan for this cycle",
+  "detailAllocationOnHold": "Stock for your shop is on hold",
+  "detailDeliveryRejected": "The delivery was rejected at the shop and is being resolved",
+  "collectedDetail": "Rice {rice} kg, wheat {wheat} kg",
+  "@collectedDetail": {
+    "placeholders": {
+      "rice": {
+        "type": "String"
+      },
+      "wheat": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleData": "Cycle",
+  "dataNoteInferred": "Dispatch is confirmed by the delivery record",
+  "historyTitle": "My history",
+  "tabCollections": "Collections",
+  "tabTransactions": "Transactions",
+  "tabIntents": "Intents",
+  "noHistory": "NO HISTORY AVAILABLE",
+  "txnSuccess": "Successful",
+  "txnFailed": "Failed",
+  "txnCancelled": "Cancelled",
+  "viewReceipt": "View receipt",
+  "transactionsCount": "{n} transactions",
+  "@transactionsCount": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "atShop": "at {shop}",
+  "@atShop": {
+    "placeholders": {
+      "shop": {
+        "type": "String"
+      }
+    }
+  },
+  "noReceiptForFailed": "A receipt is only issued for successful collections.",
+  "digitalReceipt": "Digital receipt",
+  "beneficiaryLabel": "Beneficiary",
+  "transactionId": "Transaction ID",
+  "receiptNumber": "Receipt number",
+  "commodityLabel": "Commodity",
+  "quantityLabel": "Quantity",
+  "dateTimeLabel": "Date and time",
+  "verificationRef": "Verification code",
+  "scanToVerify": "Show this code at the shop to verify the receipt",
+  "helpTitle": "Help",
+  "assistantTitle": "My PDS Assistant",
+  "assistantSubtitle": "Ask about your ration, entitlement and status",
+  "raiseGrievance": "Raise a grievance",
+  "raiseGrievanceSub": "Tell us if something went wrong",
+  "myGrievances": "My grievances",
+  "signOut": "Sign out",
+  "signOutConfirm": "Sign out of DemandSYNC?",
+  "helpFooter": "For urgent help, contact your district food office.",
+  "assistantHello": "Hello! I can explain your own ration records. What would you like to know?",
+  "askPlaceholder": "Ask a question",
+  "send": "Send",
+  "sourceLabel": "Source: {source}",
+  "@sourceLabel": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "viewRelated": "View details",
+  "assistantNote": "Answers come from your own records. This assistant cannot change anything.",
+  "chipEntitlement": "How much can I collect?",
+  "chipWindow": "When is my collection window?",
+  "chipRequest": "What did I request?",
+  "chipDispatch": "Where is my ration?",
+  "chipFps": "Which shop am I assigned to?",
+  "chipCantSubmit": "Why can't I submit my plan?",
+  "assistantThinking": "Checking your records…",
+  "grievanceTitle": "Raise a grievance",
+  "chooseIssue": "What went wrong?",
+  "catShortDelivery": "Short delivery",
+  "catWrongQuantity": "Wrong quantity",
+  "catFpsIssue": "Shop issue",
+  "catQuality": "Quality issue",
+  "catTransaction": "Transaction issue",
+  "catEntitlement": "Entitlement question",
+  "catCollection": "Collection issue",
+  "catOther": "Other",
+  "describeIssue": "Describe the issue",
+  "describeHint": "Write what happened (at least 10 characters)",
+  "charCount": "{n} / 500",
+  "@charCount": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "aiSuggest": "Suggest a category",
+  "aiSuggestion": "Suggested: {category}",
+  "@aiSuggestion": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      }
+    }
+  },
+  "aiSuggestNote": "This is only a suggestion. You choose before submitting.",
+  "useSuggestion": "Use this",
+  "aboutTransaction": "About a collection?",
+  "noTransactionLink": "Not about a specific collection",
+  "submitGrievance": "Submit grievance",
+  "grievanceSubmitted": "Grievance submitted",
+  "grievanceSubmittedBody": "Your grievance has been recorded. You can follow its status under My grievances.",
+  "grStatusOpen": "Open",
+  "grStatusInReview": "In review",
+  "grStatusResolved": "Resolved",
+  "grStatusClosed": "Closed",
+  "noGrievances": "You have not raised any grievance",
+  "resolutionLabel": "Resolution",
+  "errOffline": "Unable to connect to PDS services. Please try again.",
+  "errTimeout": "The server is taking too long to respond. Please try again.",
+  "errServer": "Something went wrong on our side. Please try again in a moment.",
+  "errSession": "Your session has expired. Please sign in again.",
+  "errGeneric": "Something went wrong. Please try again.",
+  "errIntentDuplicate": "Your collection preference has already been submitted for this cycle.",
+  "errWindowClosed": "The choice window for this cycle is closed.",
+  "errExceedsRemaining": "That is more than your remaining entitlement.",
+  "errInvalidQuantity": "Enter a quantity above zero.",
+  "errFpsNotEligible": "You can only choose an active shop in your own district.",
+  "errNoCycle": "There is no active cycle right now.",
+  "errTooMany": "Too many attempts. Please wait a moment and try again.",
+  "errBadCredentials": "The details could not be verified. Please check your ration card and mobile number.",
+  "errAccountDisabled": "This account is disabled. Please contact the food office.",
+  "errOtpUnavailable": "OTP delivery is not available right now. Please try again later.",
+  "errNotFound": "We could not find that record.",
+  "errOtpInvalid": "Wrong OTP. {left} tries left.",
+  "@errOtpInvalid": {
+    "placeholders": {
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "errOtpInvalidLast": "Wrong OTP. Please request a new one.",
+  "errOtpExpired": "This OTP has expired. Please request a new one.",
+  "errOtpUsed": "This OTP was already used. Please request a new one.",
+  "errOtpTooMany": "Too many wrong tries. Please request a new OTP.",
+  "errOtpNotRequested": "Please request an OTP first.",
+  "errCooldown": "Please wait {seconds}s before asking for another OTP.",
+  "@errCooldown": {
+    "placeholders": {
+      "seconds": {
+        "type": "String"
+      }
+    }
+  },
+  "sessionExpiredBanner": "Your session expired. Please sign in again."
+}

@@ -1,100 +1,194 @@
 import 'package:flutter/material.dart';
-import '../services/api.dart';
-import 'entitlement_screen.dart';
-import 'intent_screen.dart';
-import 'track_screen.dart';
-import 'grievance_screen.dart';
-import 'assistant_screen.dart';
+import 'package:provider/provider.dart';
 
-class HomeScreen extends StatefulWidget {
-  final Map<String,dynamic> beneficiary;
-  final Map<String,dynamic> fps;
-  final Map<String,dynamic> entitlement;
-  final Map<String,dynamic> cycle;
-  const HomeScreen({required this.beneficiary, required this.fps, required this.entitlement, required this.cycle, super.key});
-  @override State<HomeScreen> createState()=>_H();
-}
-class _H extends State<HomeScreen>{
-  int _idx=0;
-  @override Widget build(BuildContext c){
-    final ben = widget.beneficiary;
-    final ent = widget.entitlement;
-    final fps = widget.fps;
-    return Scaffold(
-      appBar: AppBar(backgroundColor: const Color(0xFF0F2A44), foregroundColor: Colors.white, title: const Text('DemandSYNC'), actions: [IconButton(onPressed: (){}, icon: const Icon(Icons.notifications_none))]),
-      body: _idx==0 ? SingleChildScrollView(padding: const EdgeInsets.all(14), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-        Container(width:double.infinity, padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: const Color(0xFF0F2A44), borderRadius: BorderRadius.circular(12)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-          Text('Good Morning, ${ben['head_of_household']}', style: const TextStyle(color: Colors.white, fontSize:16, fontWeight: FontWeight.bold)),
-          Text('Ration Card No: ${ben['ration_card_id']}', style: const TextStyle(color: Colors.white70, fontSize:11)),
-          const SizedBox(height:10),
-          Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)), child: Column(children:[
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children:[
-              const Text('Current Cycle', style: TextStyle(fontWeight: FontWeight.bold, fontSize:12)), Container(padding: const EdgeInsets.symmetric(horizontal:8, vertical:2), decoration: BoxDecoration(color: const Color(0xFF16A34A), borderRadius: BorderRadius.circular(10)), child: const Text('Active', style: TextStyle(color: Colors.white, fontSize:10))),
-            ]),
-            const SizedBox(height:4), Text('${widget.cycle['name'] ?? 'September 2026'}', style: const TextStyle(fontSize:14, fontWeight: FontWeight.w600)),
-            const SizedBox(height:4), Text('Collection Window\n${widget.cycle['choice_window_start']} — ${widget.cycle['choice_window_end']}', style: const TextStyle(fontSize:11, color: Colors.black54)),
-          ])),
-        ])),
-        const SizedBox(height:12),
-        Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow:[BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius:6)]), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-          const Text('My Entitlement (Monthly)', style: TextStyle(fontWeight: FontWeight.bold, fontSize:13)),
-          const SizedBox(height:8),
-          Row(children:[
-            Expanded(child: Column(children:[const Text('Rice', style: TextStyle(fontSize:11, color: Colors.black54)), Text('${ent['rice_entitlement_kg']} kg', style: const TextStyle(fontWeight: FontWeight.bold))])),
-            Expanded(child: Column(children:[const Text('Wheat', style: TextStyle(fontSize:11, color: Colors.black54)), Text('${ent['wheat_entitlement_kg']} kg', style: const TextStyle(fontWeight: FontWeight.bold))])),
-            Expanded(child: Column(children:[const Text('Total', style: TextStyle(fontSize:11, color: Colors.black54)), Text('${ent['total_entitlement_kg']} kg', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF0F2A44)))])),
-          ]),
-          const Divider(),
-          Row(children:[
-            Expanded(child: Column(children:[const Text('Used', style: TextStyle(fontSize:11)), Text('${ent['used_total_kg']} kg', style: const TextStyle(fontWeight: FontWeight.bold))])),
-            Expanded(child: Column(children:[const Text('Remaining', style: TextStyle(fontSize:11, color: Color(0xFF16A34A))), Text('${ent['remaining_total_kg']} kg', style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF16A34A)))])),
-          ]),
-        ])),
-        const SizedBox(height:10),
-        Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)), child: Row(children:[
-          Container(width:36,height:36,decoration:BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(8)), child: const Icon(Icons.check_circle, color: Color(0xFF16A34A))),
-          const SizedBox(width:10), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children:[
-            const Text('Current Status', style: TextStyle(fontSize:11, color: Colors.black54)),
-            Text('Collection Planned — FPS ${fps['fps_id'] ?? ben['current_fps_id']}', style: const TextStyle(fontSize:12, fontWeight: FontWeight.w600)),
-          ])),
-        ])),
-        const SizedBox(height:12),
-        SizedBox(width:double.infinity, child: ElevatedButton(style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0F2A44), padding: const EdgeInsets.symmetric(vertical:14), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))), onPressed: ()=>Navigator.push(c, MaterialPageRoute(builder: (_)=> IntentFlowScreen(beneficiary: ben, fps: fps, entitlement: ent))), child: const Text('Plan My Collection', style: TextStyle(color: Colors.white)))),
-        const SizedBox(height:8),
-        SizedBox(width:double.infinity, child: OutlinedButton(onPressed: ()=>setState(()=>_idx=2), child: const Text('Track My Ration'))),
-        const SizedBox(height:8),
-        Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(8)), child: const Row(children:[Icon(Icons.info, size:16, color: Color(0xFF92400E)), SizedBox(width:6), Expanded(child: Text('Your entitlement is based on your registered household and scheme. Rice + Wheat = Total. Statutory entitlement is read-only.', style: TextStyle(fontSize:11, color: Color(0xFF92400E))))])),
-      ])) : _idx==1 ? EntitlementDetail(entitlement: ent, beneficiary: ben) : _idx==2 ? const TrackScreen() : _idx==3 ? const HistoryScreen() : const GrievanceScreen(),
-      bottomNavigationBar: BottomNavigationBar(currentIndex: _idx, selectedItemColor: const Color(0xFF0F2A44), onTap: (i)=>setState(()=>_idx=i), items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-        BottomNavigationBarItem(icon: Icon(Icons.card_giftcard), label: 'My Ration'),
-        BottomNavigationBarItem(icon: Icon(Icons.local_shipping), label: 'Track'),
-        BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
-      ]),
-      floatingActionButton: FloatingActionButton.small(onPressed: ()=>Navigator.push(c, MaterialPageRoute(builder: (_)=> const AssistantScreen())), backgroundColor: const Color(0xFF0F2A44), child: const Icon(Icons.smart_toy, color: Colors.white)),
+import '../core/api_client.dart';
+import '../core/format.dart';
+import '../core/labels.dart';
+import '../core/models.dart';
+import '../core/theme.dart';
+import '../widgets/common.dart';
+import '../l10n/generated/app_localizations.dart';
+import 'cycle_screen.dart';
+import 'entitlement_screen.dart';
+import 'plan_screen.dart';
+import 'receipt_screen.dart';
+
+/// The service home. It answers one question: what can I do right now?
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final api = context.read<ApiClient>();
+    return AsyncBody<HomeData>(
+      load: api.home,
+      builder: (context, h, reload) => RefreshIndicator(onRefresh: reload, child: _HomeBody(home: h)),
     );
   }
 }
-class EntitlementDetail extends StatelessWidget {
-  final Map<String,dynamic> entitlement; final Map<String,dynamic> beneficiary;
-  const EntitlementDetail({required this.entitlement, required this.beneficiary, super.key});
-  @override Widget build(BuildContext c){
-    final e=entitlement;
-    return SingleChildScrollView(padding: const EdgeInsets.all(14), child: Column(children:[
-      Container(padding: const EdgeInsets.all(14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)), child: Column(children:[
-        const Row(children:[Icon(Icons.verified, size:16, color: Color(0xFF16A34A)), SizedBox(width:6), Text('Monthly Entitlement (From Govt. Records)', style: TextStyle(fontWeight: FontWeight.bold, fontSize:12))]),
-        const SizedBox(height:10),
-        _row('Rice','${e['rice_entitlement_kg']} kg'), _row('Wheat','${e['wheat_entitlement_kg']} kg'), _row('Total','${e['total_entitlement_kg']} kg', bold:true),
-        const Divider(),
-        const Text('Usage This Cycle', style: TextStyle(fontWeight: FontWeight.bold, fontSize:12)),
-        const SizedBox(height:6),
-        Row(children:[Expanded(child: _smallCard('Used','${e['used_total_kg']} kg')), const SizedBox(width:8), Expanded(child: _smallCard('Remaining','${e['remaining_total_kg']} kg', green:true))]),
-        const SizedBox(height:8),
-        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(8)), child: const Text('Important: Your entitlement is based on your registered household and scheme information. Scheme: PHH/AAY — entitlement never modified by intent.', style: TextStyle(fontSize:11))),
-      ])),
-    ]));
+
+class _HomeBody extends StatelessWidget {
+  const _HomeBody({required this.home});
+  final HomeData home;
+
+  String _greeting(AppLocalizations l) {
+    final hour = DateTime.now().hour;
+    return hour < 12 ? l.goodMorning : (hour < 17 ? l.goodAfternoon : l.goodEvening);
   }
-  Widget _row(String l, String v, {bool bold=false})=> Padding(padding: const EdgeInsets.symmetric(vertical:4), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children:[Text(l, style: const TextStyle(fontSize:12)), Text(v, style: TextStyle(fontWeight: bold?FontWeight.bold:FontWeight.w600))] ));
-  Widget _smallCard(String t, String v, {bool green=false})=> Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: green?const Color(0xFFDCFCE7):const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(8)), child: Column(children:[Text(t, style: const TextStyle(fontSize:11)), Text(v, style: TextStyle(fontWeight: FontWeight.bold, color: green?const Color(0xFF16A34A):Colors.black))] ));
+
+  @override
+  Widget build(BuildContext context) {
+    final l = tr(context);
+    final loc = Localizations.localeOf(context).languageCode;
+    final h = home, cycle = h.cycle, e = h.entitlement;
+    final t = Theme.of(context).textTheme;
+    final canPlan = cycle != null && cycle.windowOpen && h.intent == null;
+
+    return ListView(padding: EdgeInsets.zero, children: [
+      // header
+      Container(
+        padding: EdgeInsets.fromLTRB(20, MediaQuery.of(context).padding.top + 8, 12, 26),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [AppColors.navy, AppColors.blue]),
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+        ),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const SizedBox(height: 10),
+              Text(_greeting(l), style: const TextStyle(color: Color(0xFFCFE0FF), fontSize: 15)),
+              const SizedBox(height: 2),
+              Semantics(header: true, child: Text(h.beneficiary.name, style: t.headlineSmall?.copyWith(color: Colors.white))),
+              const SizedBox(height: 4),
+              Text(l.rationCardShort(maskedCard(h.beneficiary.rationCardId)), style: const TextStyle(color: Color(0xFFCFE0FF), fontSize: 14)),
+            ]),
+          ),
+          const LanguageButton(),
+        ]),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          if (h.notice != null && noticeText(l, h.notice!, loc).isNotEmpty)
+            SectionCard(
+              tone: switch (h.notice!.code) { 'FPS_NOT_ACTIVE' || 'WINDOW_CLOSED_NO_INTENT' || 'NO_CYCLE' => Tone.warn, 'RATION_AT_FPS' => Tone.good, _ => Tone.info },
+              child: Row(children: [
+                Icon(switch (h.notice!.code) { 'RATION_AT_FPS' => Icons.check_circle_outline, 'INTENT_RECORDED' => Icons.task_alt, _ => Icons.info_outline }, color: toneColors(switch (h.notice!.code) { 'FPS_NOT_ACTIVE' || 'WINDOW_CLOSED_NO_INTENT' || 'NO_CYCLE' => Tone.warn, 'RATION_AT_FPS' => Tone.good, _ => Tone.info }).fg),
+                const SizedBox(width: 12),
+                Expanded(child: Text(noticeText(l, h.notice!, loc), style: t.bodyMedium?.copyWith(fontWeight: FontWeight.w600))),
+              ]),
+            ),
+          // primary actions first: what can I do right now?
+          if (canPlan)
+            BigButton(
+              label: l.planMyCollection,
+              icon: Icons.edit_calendar_rounded,
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => PlanScreen(home: h))),
+            ),
+          if (h.intent != null)
+            BigButton(
+              label: l.viewMyPlan,
+              icon: Icons.receipt_long_rounded,
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => ReceiptScreen(receipt: h.intent!))),
+            ),
+          const SizedBox(height: 10),
+          BigButton(label: l.trackMyRation, icon: Icons.local_shipping_outlined, style: BigButtonStyle.secondary, onPressed: () => context.read<TabIndex>().go(1)),
+          const SizedBox(height: 18),
+          // current cycle
+          SectionCard(
+            onTap: cycle == null ? null : () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => CycleScreen(home: h))),
+            child: cycle == null
+                ? Text(l.noticeNoCycle)
+                : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Row(children: [Expanded(child: Text(l.currentCycle, style: t.bodyMedium?.copyWith(color: AppColors.textMuted)))]),
+                    if (h.statusKey != null) ...[
+                      const SizedBox(height: 4),
+                      Wrap(children: [StatusChip(label: stageLabel(l, h.statusKey!), tone: toneForStatusKey(h.statusKey), icon: h.statusKey == 'CHOICE_WINDOW_CLOSED' ? Icons.lock_clock_outlined : Icons.circle)]),
+                    ],
+                    const SizedBox(height: 6),
+                    Semantics(header: true, child: Text(cycleLabel(cycle.cycle, loc), style: t.titleLarge)),
+                    const SizedBox(height: 6),
+                    Text(
+                      (cycle.windowStart != null && cycle.windowEnd != null) ? l.collectionWindow(shortDate(cycle.windowStart!, loc), shortDate(cycle.windowEnd!, loc)) : l.dataUnavailable,
+                      style: t.bodyMedium?.copyWith(color: AppColors.textMuted),
+                    ),
+                  ]),
+          ),
+          // entitlement
+          SectionCard(
+            onTap: cycle == null ? null : () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const EntitlementScreen())),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [Expanded(child: Text(l.myEntitlement, style: t.titleMedium)), const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted)]),
+              const SizedBox(height: 12),
+              Row(children: [
+                _Stat(label: l.rice, value: l.kgValue(kgText(h.statutory.rice)), icon: Icons.rice_bowl_outlined),
+                const SizedBox(width: 10),
+                _Stat(label: l.wheat, value: l.kgValue(kgText(h.statutory.wheat)), icon: Icons.grain_rounded),
+                const SizedBox(width: 10),
+                _Stat(label: l.total, value: l.kgValue(kgText(h.statutory.total)), icon: Icons.scale_outlined, strong: true),
+              ]),
+              if (e != null) ...[
+                const Divider(height: 26),
+                Row(children: [
+                  Expanded(child: Text(l.remaining, style: t.bodyLarge?.copyWith(fontWeight: FontWeight.w600))),
+                  Text(l.kgValue(kgText(e.remainingTotalKg)), style: t.titleLarge?.copyWith(color: e.remainingTotalKg > 0 ? AppColors.good : AppColors.textMuted)),
+                ]),
+                const SizedBox(height: 4),
+                Row(children: [
+                  Expanded(child: Text(l.collected, style: t.bodyMedium?.copyWith(color: AppColors.textMuted))),
+                  Text(l.kgValue(kgText(e.collectedTotalKg)), style: t.bodyMedium?.copyWith(color: AppColors.textMuted)),
+                ]),
+              ],
+            ]),
+          ),
+          // current shop
+          SectionCard(
+            tone: h.fps.isActive ? null : Tone.warn,
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                const Icon(Icons.storefront_rounded, color: AppColors.blue),
+                const SizedBox(width: 10),
+                Expanded(child: Text(l.currentFps, style: t.bodyMedium?.copyWith(color: AppColors.textMuted))),
+              ]),
+              const SizedBox(height: 6),
+              Text(h.fps.name, style: t.titleMedium),
+              if (!h.fps.isActive) Padding(padding: const EdgeInsets.only(top: 6), child: StatusChip(label: l.shopNotActive, tone: Tone.warn, icon: Icons.block_rounded)),
+              const SizedBox(height: 4),
+              Text('${h.fps.taluk}, ${h.fps.district}', style: t.bodyMedium?.copyWith(color: AppColors.textMuted)),
+              Text(l.fpsIdLabel(h.fps.id), style: t.bodyMedium?.copyWith(color: AppColors.textMuted)),
+              if (h.fps.openingHours != null) Text(l.openingHours(h.fps.openingHours!), style: t.bodyMedium?.copyWith(color: AppColors.textMuted)),
+            ]),
+          ),
+        ]),
+      ),
+    ]);
+  }
 }
-class HistoryScreen extends StatelessWidget{ const HistoryScreen({super.key}); @override Widget build(BuildContext c)=> const Scaffold(body: Center(child: Text('History — real ePOS + intents from /history/me — if none: NO HISTORY AVAILABLE')));}
+
+class _Stat extends StatelessWidget {
+  const _Stat({required this.label, required this.value, required this.icon, this.strong = false});
+  final String label, value;
+  final IconData icon;
+  final bool strong;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Semantics(
+        label: '$label $value',
+        excludeSemantics: true,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          decoration: BoxDecoration(color: strong ? AppColors.blueSoft : const Color(0xFFF3F6FB), borderRadius: BorderRadius.circular(14)),
+          child: Column(children: [
+            Icon(icon, size: 22, color: AppColors.blue),
+            const SizedBox(height: 6),
+            Text(label, style: const TextStyle(fontSize: 13, color: AppColors.textMuted)),
+            const SizedBox(height: 2),
+            FittedBox(fit: BoxFit.scaleDown, child: Text(value, style: TextStyle(fontSize: strong ? 18 : 16, fontWeight: FontWeight.w800, color: AppColors.text))),
+          ]),
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "cycle": "2026-03",
+  "scheme": "AAY",
+  "household_size": 7,
+  "rice_kg": 22,
+  "wheat_kg": 13,
+  "total_kg": 35,
+  "collected_rice_kg": 18,
+  "collected_wheat_kg": 6,
+  "collected_total_kg": 24,
+  "remaining_rice_kg": 4,
+  "remaining_wheat_kg": 7,
+  "remaining_total_kg": 11,
+  "source": "beneficiaries + epos_transactions (SUCCESS)"
+}

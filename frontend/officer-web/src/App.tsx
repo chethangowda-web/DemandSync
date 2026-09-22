@@ -21,9 +21,10 @@ import AuditorPortal from './pages/AuditorPortal';
 function Shell() {
   const { user, logout, loading } = useAuth();
   const { pathname } = useLocation();
-  // The DSO control centre carries its own operations rail and command bar; a second global nav on top
-  // of it would just be chrome competing with chrome.
-  const ownsItsChrome = pathname.startsWith('/dso');
+  // The DSO control centre carries its own operations rail and command bar, and sign-in is a
+  // full-bleed screen of its own; a second global nav on top of either would just be chrome
+  // competing with chrome.
+  const ownsItsChrome = pathname.startsWith('/dso') || pathname === '/login';
   return (
     <>
       {!ownsItsChrome && (

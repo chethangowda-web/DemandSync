@@ -205,15 +205,23 @@ def list_allocations(conn, cycle: str) -> list[dict]:
                          FROM allocations WHERE cycle = %s ORDER BY fps_id, commodity""", (cycle,))
 
 
-def list_exceptions(conn, cycle: str, status: str | None = None) -> list[dict]:
+def list_exceptions(conn, cycle: str, status: str | None = None, entity_type: str | None = None) -> list[dict]:
+    """The seeded dataset ships its own historical exceptions for every cycle (entity_type DELIVERY/EPOS/
+    MANIFEST from the original demo generation) alongside whatever this live workflow's own gates record
+    (entity_type ALLOCATION/ROUTING/CLOSURE) -- the same seeded-data-collision pattern Slices 1-5 all hit.
+    `entity_type` lets a caller ask for only its own workflow's exceptions instead of everything ever
+    recorded for the cycle."""
+    sql = """SELECT exception_id, entity_type, entity_id, rule_code, severity, reason, detected_at,
+                    assigned_to, status, resolution, resolved_at FROM exceptions WHERE cycle = %s"""
+    params: list = [cycle]
     if status:
-        return rows(conn, """SELECT exception_id, entity_type, entity_id, rule_code, severity, reason, detected_at,
-                                    assigned_to, status, resolution, resolved_at
-                             FROM exceptions WHERE cycle = %s AND status = %s ORDER BY severity, detected_at""",
-                    (cycle, status))
-    return rows(conn, """SELECT exception_id, entity_type, entity_id, rule_code, severity, reason, detected_at,
-                                assigned_to, status, resolution, resolved_at
-                         FROM exceptions WHERE cycle = %s ORDER BY severity, detected_at""", (cycle,))
+        sql += " AND status = %s"
+        params.append(status)
+    if entity_type:
+        sql += " AND entity_type = %s"
+        params.append(entity_type)
+    sql += " ORDER BY severity, detected_at"
+    return rows(conn, sql, params)
 
 
 def override_allocation(conn, cycle: str, fps_id: str, commodity: str, new_kg: float, officer_id: str, reason: str) -> dict:

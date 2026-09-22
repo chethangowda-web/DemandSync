@@ -16,6 +16,7 @@ from backend.services import allocation as allocation_svc
 from backend.services import demand as demand_svc
 from backend.services import forecast as forecast_svc
 from backend.services import manifest as manifest_svc
+from backend.services import overview as overview_svc
 from backend.services import routing as routing_svc
 from backend.services import tracking as tracking_svc
 from backend.services.beneficiary import one, rows
@@ -25,6 +26,7 @@ ViewDemand = Depends(require_permission(Permission.VIEW_DEMAND))
 ViewCycle = Depends(require_permission(Permission.VIEW_CYCLE))
 ManageCycle = Depends(require_permission(Permission.MANAGE_CYCLE))
 ViewManifest = Depends(require_permission(Permission.VIEW_MANIFEST))
+ViewWarehouse = Depends(require_permission(Permission.VIEW_WAREHOUSE))
 
 
 @router.get("/cycles")
@@ -135,8 +137,9 @@ def get_allocations(cycle: str, user=ViewDemand, conn=Depends(get_db)):
 
 @router.get("/cycles/{cycle}/exceptions")
 def get_exceptions(cycle: str, status: str | None = Query(None, pattern="^(OPEN|ACKNOWLEDGED|ACTION_REQUIRED|RESOLVED|CLOSED)$"),
+                   entity_type: str | None = Query(None, pattern="^(ALLOCATION|ROUTING|CLOSURE|DELIVERY|EPOS|MANIFEST)$"),
                    user=ViewDemand, conn=Depends(get_db)):
-    return {"cycle": cycle, "exceptions": allocation_svc.list_exceptions(conn, cycle, status)}
+    return {"cycle": cycle, "exceptions": allocation_svc.list_exceptions(conn, cycle, status, entity_type)}
 
 
 @router.post("/cycles/{cycle}/allocations/{fps_id}/{commodity}/override")
@@ -268,3 +271,45 @@ def close_cycle(cycle: str, user=ManageCycle, conn=Depends(get_db)):
     conn.commit()
     write_audit(user["user_id"], user["role"], "CYCLE_CLOSED", "SUCCESS", "complete audit trail", "CYCLE", cycle, cycle)
     return result
+
+
+# ---------------------------------------------------------------- read-only operational views
+# Purely additive: every endpoint below is a SELECT. None of them touch the cycle state machine, and
+# Phase 2's action endpoints above are unchanged. See backend/services/overview.py.
+
+@router.get("/cycles/{cycle}/summary")
+def cycle_summary(cycle: str, user=ViewDemand, conn=Depends(get_db)):
+    """The control centre's situation summary in one call, so the UI needn't pull four 1200-row
+    payloads just to count things. Any figure the database cannot answer comes back null."""
+    summary = overview_svc.cycle_summary(conn, cycle)
+    if not summary:
+        raise ApiError(404, "CYCLE_NOT_FOUND", f"Cycle {cycle} does not exist.")
+    return summary
+
+
+@router.get("/cycles/{cycle}/fleet")
+def cycle_fleet(cycle: str, user=ViewWarehouse, conn=Depends(get_db)):
+    """Every vehicle with its capacity, status, and this cycle's manifest assignment (if any)."""
+    return overview_svc.fleet_status(conn, cycle)
+
+
+@router.get("/cycles/{cycle}/deliveries")
+def cycle_deliveries(cycle: str, user=ViewManifest, conn=Depends(get_db)):
+    """Recorded deliveries for this cycle: planned vs delivered per FPS+commodity, with variance."""
+    return {"cycle": cycle, "deliveries": overview_svc.deliveries(conn, cycle)}
+
+
+@router.get("/cycles/{cycle}/tracking")
+def cycle_tracking(cycle: str, user=ViewManifest, conn=Depends(get_db)):
+    """Planned route stops and whatever telemetry actually exists. Telemetry is frequently absent; the
+    two are returned separately so the UI never presents a planned stop as a live position."""
+    return {"cycle": cycle, "planned_routes": overview_svc.planned_routes(conn, cycle),
+            "telemetry": overview_svc.telemetry(conn, cycle)}
+
+
+@router.get("/cycles/{cycle}/closure-checks")
+def cycle_closure_checks(cycle: str, user=ViewDemand, conn=Depends(get_db)):
+    """The 7 closure checks, computed read-only, so the officer can see the gate before committing to
+    POST /reconcile (which is what actually advances the cycle)."""
+    checks = tracking_svc.run_closure_checks(conn, cycle)
+    return {"cycle": cycle, "checks": checks, "passed": all(checks.values())}

@@ -62,27 +62,35 @@ class _ReviewScreenState extends State<ReviewScreen> {
           Expanded(
             child: ListView(padding: const EdgeInsets.all(16), children: [
               SectionCard(
-                child: Column(children: [
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  SectionHeader(icon: Icons.fact_check_rounded, title: l.planSummary, badgeColor: AppColors.blue),
+                  const SizedBox(height: 12),
                   KeyValueRow(label: l.reviewCycle, value: cycleLabel(cycle.cycle, loc)),
                   KeyValueRow(label: l.reviewFps, value: widget.fps.name),
                   KeyValueRow(label: l.reviewMode, value: modeLabel(l, widget.mode)),
                   const Divider(),
                   KeyValueRow(label: l.rice, value: l.kgValue('${widget.riceKg}')),
                   KeyValueRow(label: l.wheat, value: l.kgValue('${widget.wheatKg}')),
-                  KeyValueRow(label: l.total, value: l.kgValue('$total'), strong: true),
                   const Divider(),
-                  KeyValueRow(label: l.reviewRemainingAfter, value: l.kgValue(kgText(e.remainingTotalKg - total))),
+                  Container(
+                    decoration: BoxDecoration(color: AppColors.blueSoft, borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    child: Column(children: [
+                      KeyValueRow(label: l.total, value: l.kgValue('$total'), strong: true),
+                      KeyValueRow(label: l.reviewRemainingAfter, value: l.kgValue(kgText(e.remainingTotalKg - total))),
+                    ]),
+                  ),
                 ]),
               ),
               SectionCard(
                 tone: Tone.warn,
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Icon(Icons.warning_amber_rounded, color: AppColors.warn),
+                  const IconBadge(icon: Icons.warning_amber_rounded, color: AppColors.warn, size: 34),
                   const SizedBox(width: 12),
                   Expanded(child: Text(l.reviewWarning, style: t.bodyMedium?.copyWith(fontWeight: FontWeight.w600))),
                 ]),
               ),
-              if (_error != null) Semantics(liveRegion: true, child: SectionCard(tone: Tone.bad, child: Row(children: [const Icon(Icons.error_outline, color: AppColors.bad), const SizedBox(width: 12), Expanded(child: Text(_error!, style: const TextStyle(color: AppColors.bad, fontWeight: FontWeight.w600)))]))),
+              if (_error != null) Semantics(liveRegion: true, child: SectionCard(tone: Tone.bad, child: Row(children: [const IconBadge(icon: Icons.error_outline_rounded, color: AppColors.bad, size: 34), const SizedBox(width: 12), Expanded(child: Text(_error!, style: const TextStyle(color: AppColors.bad, fontWeight: FontWeight.w600)))]))),
             ]),
           ),
           Container(

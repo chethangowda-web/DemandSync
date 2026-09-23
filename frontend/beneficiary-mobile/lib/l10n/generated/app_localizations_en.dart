@@ -304,6 +304,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get householdLabel => 'Household';
 
   @override
+  String get householdDetails => 'Household details';
+
+  @override
   String get entitlementExplain =>
       'Your entitlement is based on your registered household and scheme information.';
 
@@ -313,6 +316,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cycleTitle => 'Current cycle';
+
+  @override
+  String get cycleSubtitle => 'Your ration cycle at a glance';
 
   @override
   String get periodLabel => 'Cycle period';
@@ -428,6 +434,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get planSummary => 'Plan summary';
+
+  @override
   String get reviewTitle => 'Review your plan';
 
   @override
@@ -491,6 +500,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receiptTitle => 'Intent receipt';
+
+  @override
+  String get receiptDetails => 'Receipt details';
 
   @override
   String get trackTitle => 'Track my ration';
@@ -599,6 +611,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get digitalReceipt => 'Digital receipt';
+
+  @override
+  String get digitalReceiptSubtitle => 'e-PoS transaction record';
 
   @override
   String get beneficiaryLabel => 'Beneficiary';
@@ -873,4 +888,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sessionExpiredBanner =>
       'Your session expired. Please sign in again.';
+
+  @override
+  String get trackSubtitle =>
+      'Follow every stage of this month\'s ration, from plan to collection.';
+
+  @override
+  String get journeyStepsTitle => 'Journey steps';
+
+  @override
+  String get notificationsSubtitle =>
+      'Real updates from your ration journey and grievances — nothing else.';
+
+  @override
+  String get grievanceIntroSubtitle =>
+      'Tell us what happened. Choose a category, describe it, and we will route it for review.';
+
+  @override
+  String get helpSubtitle =>
+      'Get support, ask our assistant, or raise a concern.';
+
+  @override
+  String get historySubtitle =>
+      'Every collection, transaction and plan tied to your ration card.';
+
+  @override
+  String get myGrievancesSubtitle =>
+      'Track the status of every grievance you have raised.';
 }

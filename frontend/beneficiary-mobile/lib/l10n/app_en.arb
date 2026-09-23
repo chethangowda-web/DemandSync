@@ -176,9 +176,11 @@
     }
   },
   "householdLabel": "Household",
+  "householdDetails": "Household details",
   "entitlementExplain": "Your entitlement is based on your registered household and scheme information.",
   "entitlementReadOnly": "It is set by the government. Your plan can never change it.",
   "cycleTitle": "Current cycle",
+  "cycleSubtitle": "Your ration cycle at a glance",
   "periodLabel": "Cycle period",
   "windowLabel": "Choice window",
   "statusLabel": "Status",
@@ -247,6 +249,7 @@
       }
     }
   },
+  "planSummary": "Plan summary",
   "reviewTitle": "Review your plan",
   "reviewFps": "Shop",
   "reviewMode": "Collected by",
@@ -268,6 +271,7 @@
   "yesCancel": "Yes, cancel it",
   "backToHome": "Back to home",
   "receiptTitle": "Intent receipt",
+  "receiptDetails": "Receipt details",
   "trackTitle": "Track my ration",
   "journeyOf": "Cycle {cycle}",
   "@journeyOf": {
@@ -347,6 +351,7 @@
   },
   "noReceiptForFailed": "A receipt is only issued for successful collections.",
   "digitalReceipt": "Digital receipt",
+  "digitalReceiptSubtitle": "e-PoS transaction record",
   "beneficiaryLabel": "Beneficiary",
   "transactionId": "Transaction ID",
   "receiptNumber": "Receipt number",
@@ -463,5 +468,12 @@
       }
     }
   },
-  "sessionExpiredBanner": "Your session expired. Please sign in again."
+  "sessionExpiredBanner": "Your session expired. Please sign in again.",
+  "trackSubtitle": "Follow every stage of this month's ration, from plan to collection.",
+  "journeyStepsTitle": "Journey steps",
+  "notificationsSubtitle": "Real updates from your ration journey and grievances — nothing else.",
+  "grievanceIntroSubtitle": "Tell us what happened. Choose a category, describe it, and we will route it for review.",
+  "helpSubtitle": "Get support, ask our assistant, or raise a concern.",
+  "historySubtitle": "Every collection, transaction and plan tied to your ration card.",
+  "myGrievancesSubtitle": "Track the status of every grievance you have raised."
 }

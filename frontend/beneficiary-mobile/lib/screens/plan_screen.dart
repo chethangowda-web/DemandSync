@@ -50,9 +50,12 @@ class _PlanScreenState extends State<PlanScreen> {
           _Steps(current: 0, labels: [l.stepSelect, l.stepReview, l.stepSubmit]),
           Expanded(
             child: ListView(padding: const EdgeInsets.fromLTRB(16, 4, 16, 16), children: [
-              Semantics(header: true, child: Text(l.chooseFps, style: t.titleLarge)),
-              Text(l.nearestFirst, style: t.bodyMedium?.copyWith(color: AppColors.textMuted)),
-              const SizedBox(height: 10),
+              Semantics(
+                header: true,
+                excludeSemantics: true,
+                child: SectionHeader(icon: Icons.storefront_rounded, title: l.chooseFps, subtitle: l.nearestFirst, badgeColor: AppColors.blue),
+              ),
+              const SizedBox(height: 12),
               FutureBuilder<List<Fps>>(
                 future: _fps,
                 builder: (context, snap) {
@@ -62,8 +65,12 @@ class _PlanScreenState extends State<PlanScreen> {
                 },
               ),
               const SizedBox(height: 14),
-              Semantics(header: true, child: Text(l.chooseQuantity, style: t.titleLarge)),
-              const SizedBox(height: 10),
+              Semantics(
+                header: true,
+                excludeSemantics: true,
+                child: SectionHeader(icon: Icons.scale_rounded, title: l.chooseQuantity, badgeColor: AppColors.navy),
+              ),
+              const SizedBox(height: 12),
               _QuantityCard(label: l.riceKg, icon: Icons.rice_bowl_outlined, value: _rice, max: e.remainingRiceKg.toInt(), onChanged: (v) => setState(() => _rice = v)),
               _QuantityCard(label: l.wheatKg, icon: Icons.grain_rounded, value: _wheat, max: e.remainingWheatKg.toInt(), onChanged: (v) => setState(() => _wheat = v)),
               const SizedBox(height: 4),
@@ -83,12 +90,18 @@ class _PlanScreenState extends State<PlanScreen> {
               // live calculation
               SectionCard(
                 tone: Tone.info,
-                child: Column(children: [
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  SectionHeader(icon: Icons.calculate_rounded, title: l.planSummary, badgeColor: AppColors.blue),
+                  const SizedBox(height: 12),
                   KeyValueRow(label: l.calcEntitlement, value: l.kgValue(kgText(e.totalKg))),
                   KeyValueRow(label: l.calcCollected, value: l.kgValue(kgText(e.collectedTotalKg))),
                   KeyValueRow(label: l.calcRemaining, value: l.kgValue(kgText(e.remainingTotalKg))),
                   const Divider(),
-                  KeyValueRow(label: l.calcRequested, value: l.kgValue('$total'), strong: true),
+                  Container(
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10), border: Border.all(color: AppColors.blue.withValues(alpha: 0.25))),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: KeyValueRow(label: l.calcRequested, value: l.kgValue('$total'), strong: true),
+                  ),
                 ]),
               ),
             ]),

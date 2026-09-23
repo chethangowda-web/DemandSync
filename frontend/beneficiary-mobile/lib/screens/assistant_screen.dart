@@ -145,27 +145,29 @@ class _AssistantScreenState extends State<AssistantScreen> {
             width: double.infinity,
             color: AppColors.blueSoft,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Row(children: [const Icon(Icons.shield_outlined, size: 20, color: AppColors.blue), const SizedBox(width: 10), Expanded(child: Text(l.assistantNote, style: const TextStyle(fontSize: 13.5)))]),
+            child: Row(children: [
+              const IconBadge(icon: Icons.shield_rounded, color: AppColors.blue, size: 30, iconSize: 16),
+              const SizedBox(width: 10),
+              Expanded(child: Text(l.assistantNote, style: const TextStyle(fontSize: 13.5))),
+            ]),
           ),
           Expanded(
             child: ListView(controller: _scroll, padding: const EdgeInsets.all(16), children: [
               _Bubble(text: l.assistantHello, mine: false),
               if (_intel != null)
                 for (final card in _intel!.cards)
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      border: const Border(left: BorderSide(color: AppColors.blue, width: 4)),
-                    ),
+                  SectionCard(
+                    tone: Tone.info,
                     child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Row(children: [
-                        Expanded(child: Text(card.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700))),
-                        const _AdvisoryChip(),
+                      Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: 10, runSpacing: 6, children: [
+                        Row(mainAxisSize: MainAxisSize.min, children: [
+                          const IconBadge(icon: Icons.insights_rounded, color: AppColors.blue, size: 32, iconSize: 17),
+                          const SizedBox(width: 10),
+                          Text(card.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
+                        ]),
+                        const StatusChip(label: 'ADVISORY', tone: Tone.info, icon: Icons.auto_awesome_rounded),
                       ]),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 8),
                       Text(card.summary, style: const TextStyle(fontSize: 14.5, height: 1.4)),
                       if (card.recommendation != null) ...[
                         const SizedBox(height: 6),
@@ -252,24 +254,6 @@ class _Bubble extends StatelessWidget {
           ]),
         ),
       ),
-    );
-  }
-}
-
-/// Advisory marker shared by Phase 8 intelligence cards.
-class _AdvisoryChip extends StatelessWidget {
-  const _AdvisoryChip();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: AppColors.blueSoft,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: AppColors.blue),
-      ),
-      child: const Text('ADVISORY', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.blue)),
     );
   }
 }

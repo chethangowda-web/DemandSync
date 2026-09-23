@@ -33,26 +33,39 @@ class HistoryScreen extends StatelessWidget {
           ),
         ),
         body: TabBarView(children: [
-          AsyncBody<List<CollectionRecord>>(load: api.collections, builder: (c, items, reload) => _list(c, items.isEmpty, reload, [for (final r in items) _CollectionTile(record: r)])),
-          AsyncBody<List<TransactionRecord>>(load: api.transactions, builder: (c, items, reload) => _list(c, items.isEmpty, reload, [for (final r in items) _TransactionTile(record: r)])),
-          AsyncBody<List<IntentRecord>>(load: api.intents, builder: (c, items, reload) => _list(c, items.isEmpty, reload, [for (final r in items) _IntentTile(record: r)])),
+          AsyncBody<List<CollectionRecord>>(
+              load: api.collections,
+              builder: (c, items, reload) => _list(c, items.isEmpty, reload, [for (final r in items) _CollectionTile(record: r)],
+                  icon: Icons.inventory_2_rounded, title: l.tabCollections)),
+          AsyncBody<List<TransactionRecord>>(
+              load: api.transactions,
+              builder: (c, items, reload) => _list(c, items.isEmpty, reload, [for (final r in items) _TransactionTile(record: r)],
+                  icon: Icons.receipt_long_rounded, title: l.tabTransactions)),
+          AsyncBody<List<IntentRecord>>(
+              load: api.intents,
+              builder: (c, items, reload) => _list(c, items.isEmpty, reload, [for (final r in items) _IntentTile(record: r)],
+                  icon: Icons.edit_calendar_rounded, title: l.tabIntents)),
         ]),
       ),
     );
   }
 
-  Widget _list(BuildContext context, bool empty, Future<void> Function() reload, List<Widget> tiles) {
+  Widget _list(BuildContext context, bool empty, Future<void> Function() reload, List<Widget> tiles, {required IconData icon, required String title}) {
     final l = tr(context);
     return RefreshIndicator(
       onRefresh: reload,
       child: empty
           ? ListView(children: [
-              const SizedBox(height: 120),
-              Icon(Icons.inbox_outlined, size: 64, color: AppColors.textMuted.withValues(alpha: 0.7)),
+              const SizedBox(height: 100),
+              Center(child: IconBadge(icon: icon, color: AppColors.textMuted, size: 64, iconSize: 30)),
               const SizedBox(height: 14),
               Center(child: Text(l.noHistory, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textMuted))),
             ])
-          : ListView(padding: const EdgeInsets.all(16), children: tiles),
+          : ListView(padding: const EdgeInsets.all(16), children: [
+              SectionHeader(icon: icon, title: title, subtitle: l.historySubtitle, badgeColor: AppColors.blue),
+              const SizedBox(height: 14),
+              ...tiles,
+            ]),
     );
   }
 }
@@ -69,7 +82,7 @@ class _CollectionTile extends StatelessWidget {
     return SectionCard(
       onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => CollectionDetailScreen(record: record))),
       child: Row(children: [
-        const CircleAvatar(backgroundColor: AppColors.goodSoft, child: Icon(Icons.inventory_2_outlined, color: AppColors.good)),
+        const IconBadge(icon: Icons.inventory_2_rounded, color: AppColors.good),
         const SizedBox(width: 14),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -103,7 +116,7 @@ class _TransactionTile extends StatelessWidget {
         }
       },
       child: Row(children: [
-        Icon(record.commodity == 'RICE' ? Icons.rice_bowl_outlined : Icons.grain_rounded, color: AppColors.blue, size: 30),
+        IconBadge(icon: record.commodity == 'RICE' ? Icons.rice_bowl_rounded : Icons.grain_rounded, color: AppColors.blue),
         const SizedBox(width: 14),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -156,7 +169,7 @@ class _IntentTileState extends State<_IntentTile> {
     return SectionCard(
       onTap: _busy ? null : _open,
       child: Row(children: [
-        const CircleAvatar(backgroundColor: AppColors.blueSoft, child: Icon(Icons.edit_calendar_rounded, color: AppColors.blue)),
+        const IconBadge(icon: Icons.edit_calendar_rounded, color: AppColors.blue),
         const SizedBox(width: 14),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -191,6 +204,8 @@ class CollectionDetailScreen extends StatelessWidget {
         builder: (context, all, reload) {
           final mine = all.where((t) => record.transactionIds.contains(t.reference)).toList();
           return ListView(padding: const EdgeInsets.all(16), children: [
+            SectionHeader(icon: Icons.inventory_2_rounded, title: cycleLabel(record.cycle, loc), subtitle: l.atShop(record.fpsName), badgeColor: AppColors.good),
+            const SizedBox(height: 14),
             SectionCard(
               child: Column(children: [
                 KeyValueRow(label: l.rice, value: l.kgValue(kgText(record.riceKg))),

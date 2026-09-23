@@ -194,6 +194,88 @@ class BigButton extends StatelessWidget {
   }
 }
 
+/// A filled colour circle carrying a single icon — the recurring "badge" motif used across the
+/// redesigned screens (home, entitlement, plan, track, ...) so every card reads as one family.
+class IconBadge extends StatelessWidget {
+  const IconBadge({super.key, required this.icon, this.color = AppColors.blue, this.size = 38, this.iconSize});
+  final IconData icon;
+  final Color color;
+  final double size;
+  final double? iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      child: Icon(icon, color: Colors.white, size: iconSize ?? size * 0.52),
+    );
+  }
+}
+
+/// The "ICON · EYEBROW TITLE · subtitle" row that opens most redesigned section cards, matching the
+/// pattern established on the home screen (PLAN YOUR RATION COLLECTION, VERIFY YOUR ENTITLEMENT, ...).
+class SectionHeader extends StatelessWidget {
+  const SectionHeader({super.key, required this.icon, required this.title, this.subtitle, this.badgeColor = AppColors.blue, this.trailing});
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final Color badgeColor;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final row = Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      IconBadge(icon: icon, color: badgeColor),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(title.toUpperCase(), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.navy, letterSpacing: 0.4)),
+          if (subtitle != null) ...[
+            const SizedBox(height: 2),
+            Text(subtitle!, style: const TextStyle(color: AppColors.textMuted, fontSize: 13)),
+          ],
+        ]),
+      ),
+    ]);
+    if (trailing == null) return row;
+    return LayoutBuilder(builder: (context, c) {
+      final narrow = c.maxWidth < 420 || MediaQuery.textScaleFactorOf(context) > 1.4;
+      if (narrow) {
+        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [row, const SizedBox(height: 10), trailing!]);
+      }
+      return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Expanded(child: row), const SizedBox(width: 8), trailing!]);
+    });
+  }
+}
+
+/// A soft-tint pill button used for secondary in-card actions (View details, Track my ration, ...).
+class PillLink extends StatelessWidget {
+  const PillLink({super.key, required this.label, required this.onTap, this.icon = Icons.chevron_right_rounded, this.color = AppColors.navy});
+  final String label;
+  final VoidCallback onTap;
+  final IconData icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(999), border: Border.all(color: AppColors.border)),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Flexible(child: Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 13))),
+          const SizedBox(width: 4),
+          Icon(icon, size: 16, color: color),
+        ]),
+      ),
+    );
+  }
+}
+
 class KeyValueRow extends StatelessWidget {
   const KeyValueRow({super.key, required this.label, required this.value, this.strong = false});
   final String label, value;

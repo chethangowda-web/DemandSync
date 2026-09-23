@@ -59,7 +59,14 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
           Semantics(header: true, liveRegion: true, child: Text(cancelled ? l.intentCancelled : l.intentRecorded, textAlign: TextAlign.center, style: t.headlineSmall)),
           const SizedBox(height: 18),
           SectionCard(
-            child: Column(children: [
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              SectionHeader(
+                icon: Icons.receipt_long_rounded,
+                title: l.receiptDetails,
+                badgeColor: cancelled ? AppColors.bad : AppColors.good,
+                trailing: StatusChip(label: intentStatusLabel(l, r.status), tone: cancelled ? Tone.bad : Tone.good, icon: cancelled ? Icons.cancel_outlined : Icons.check_circle_outline),
+              ),
+              const SizedBox(height: 12),
               KeyValueRow(label: l.referenceLabel, value: r.reference, strong: true),
               KeyValueRow(label: l.reviewCycle, value: cycleLabel(r.cycle, loc)),
               KeyValueRow(label: l.reviewFps, value: r.fps.name),
@@ -67,16 +74,14 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
               const Divider(),
               KeyValueRow(label: l.rice, value: l.kgValue(kgText(r.riceKg))),
               KeyValueRow(label: l.wheat, value: l.kgValue(kgText(r.wheatKg))),
-              KeyValueRow(label: l.total, value: l.kgValue(kgText(r.totalKg)), strong: true),
               const Divider(),
-              KeyValueRow(label: l.submittedOn, value: dateTimeText(r.submittedAt, loc)),
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Row(children: [
-                  Expanded(child: Text(l.statusLabel, style: t.bodyMedium?.copyWith(color: AppColors.textMuted))),
-                  StatusChip(label: intentStatusLabel(l, r.status), tone: cancelled ? Tone.bad : Tone.good, icon: cancelled ? Icons.cancel_outlined : Icons.check_circle_outline),
-                ]),
+              Container(
+                decoration: BoxDecoration(color: AppColors.goodSoft, borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                child: KeyValueRow(label: l.total, value: l.kgValue(kgText(r.totalKg)), strong: true),
               ),
+              const SizedBox(height: 8),
+              KeyValueRow(label: l.submittedOn, value: dateTimeText(r.submittedAt, loc)),
             ]),
           ),
           const SizedBox(height: 4),

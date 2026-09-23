@@ -39,7 +39,6 @@ class _TrackScreenState extends State<TrackScreen> {
         load: () => _load(api),
         builder: (context, data, reload) {
           final j = data.journey;
-          final t = Theme.of(context).textTheme;
           return RefreshIndicator(
             onRefresh: reload,
             child: ListView(padding: const EdgeInsets.all(16), children: [
@@ -56,12 +55,30 @@ class _TrackScreenState extends State<TrackScreen> {
                       ),
                   ]),
                 ),
-              Semantics(header: true, child: Text(l.journeyOf(cycleLabel(j.cycle, loc)), style: t.titleLarge)),
-              const SizedBox(height: 12),
+              Semantics(
+                header: true,
+                child: SectionHeader(
+                  icon: Icons.route_rounded,
+                  title: l.journeyOf(cycleLabel(j.cycle, loc)),
+                  subtitle: l.trackSubtitle,
+                  badgeColor: AppColors.blue,
+                ),
+              ),
+              const SizedBox(height: 14),
               SectionCard(
                 padding: const EdgeInsets.fromLTRB(16, 18, 16, 6),
-                child: Column(children: [for (var i = 0; i < j.steps.length; i++) _StepTile(step: j.steps[i], last: i == j.steps.length - 1)]),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Row(children: [
+                    const Icon(Icons.checklist_rounded, size: 16, color: AppColors.textMuted),
+                    const SizedBox(width: 8),
+                    Text(l.journeyStepsTitle.toUpperCase(),
+                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12, color: AppColors.textMuted, letterSpacing: 0.4)),
+                  ]),
+                  const SizedBox(height: 10),
+                  for (var i = 0; i < j.steps.length; i++) _StepTile(step: j.steps[i], last: i == j.steps.length - 1),
+                ]),
               ),
+              const SizedBox(height: 14),
               if (j.telemetry != null) _VehicleCard(j: j) else if (j.telemetryNote == 'LIVE_LOCATION_UNAVAILABLE') _NoLocationCard(),
             ]),
           );
@@ -90,6 +107,7 @@ class _StepTile extends StatelessWidget {
     };
     final detail = stepDetailText(l, step);
     final pending = step.status == 'PENDING';
+    final tc = toneColors(tone);
     return Semantics(
       container: true,
       label: '${stageLabel(l, step.key)}. ${stepStateLabel(l, step.status)}.${step.at != null ? ' ${dateTimeText(step.at!, loc)}.' : ''} $detail',
@@ -99,7 +117,12 @@ class _StepTile extends StatelessWidget {
           SizedBox(
             width: 34,
             child: Column(children: [
-              Icon(icon, color: color, size: 30),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(color: tc.bg, shape: BoxShape.circle, border: Border.all(color: color, width: 2)),
+                child: Icon(icon, color: tc.fg, size: 18),
+              ),
               if (!last) Expanded(child: Container(width: 3, margin: const EdgeInsets.symmetric(vertical: 2), color: step.status == 'DONE' ? AppColors.good.withValues(alpha: 0.5) : AppColors.border)),
             ]),
           ),
@@ -134,9 +157,17 @@ class _VehicleCard extends StatelessWidget {
     final loc = Localizations.localeOf(context).languageCode;
     final v = j.telemetry!;
     return SectionCard(
+      tone: Tone.good,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [const Icon(Icons.local_shipping_rounded, color: AppColors.blue), const SizedBox(width: 10), Text(l.liveTracking, style: Theme.of(context).textTheme.titleMedium)]),
-        const SizedBox(height: 8),
+        Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: 10, runSpacing: 6, children: [
+          Row(mainAxisSize: MainAxisSize.min, children: [
+            const IconBadge(icon: Icons.local_shipping_rounded, color: AppColors.good),
+            const SizedBox(width: 10),
+            Text(l.liveTracking, style: Theme.of(context).textTheme.titleMedium),
+          ]),
+          StatusChip(label: l.stateActive, tone: Tone.good, icon: Icons.sensors_rounded),
+        ]),
+        const SizedBox(height: 10),
         KeyValueRow(label: l.vehicleLabel, value: v.vehicleNumber),
         KeyValueRow(label: l.lastUpdate, value: dateTimeText(v.lastUpdate, loc)),
         KeyValueRow(label: l.locationLabel, value: '${v.latitude.toStringAsFixed(5)}, ${v.longitude.toStringAsFixed(5)}'),
@@ -156,7 +187,7 @@ class _NoLocationCard extends StatelessWidget {
     return SectionCard(
       tone: Tone.neutral,
       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Icon(Icons.location_off_rounded, color: AppColors.textMuted),
+        const IconBadge(icon: Icons.location_off_rounded, color: AppColors.textMuted),
         const SizedBox(width: 12),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

@@ -634,6 +634,12 @@ abstract class AppLocalizations {
   /// **'Household'**
   String get householdLabel;
 
+  /// No description provided for @householdDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Household details'**
+  String get householdDetails;
+
   /// No description provided for @entitlementExplain.
   ///
   /// In en, this message translates to:
@@ -651,6 +657,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Current cycle'**
   String get cycleTitle;
+
+  /// No description provided for @cycleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your ration cycle at a glance'**
+  String get cycleSubtitle;
 
   /// No description provided for @periodLabel.
   ///
@@ -850,6 +862,12 @@ abstract class AppLocalizations {
   /// **'Selected shop {name}'**
   String selectedShop(String name);
 
+  /// No description provided for @planSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan summary'**
+  String get planSummary;
+
   /// No description provided for @reviewTitle.
   ///
   /// In en, this message translates to:
@@ -975,6 +993,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Intent receipt'**
   String get receiptTitle;
+
+  /// No description provided for @receiptDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt details'**
+  String get receiptDetails;
 
   /// No description provided for @trackTitle.
   ///
@@ -1161,6 +1185,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Digital receipt'**
   String get digitalReceipt;
+
+  /// No description provided for @digitalReceiptSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'e-PoS transaction record'**
+  String get digitalReceiptSubtitle;
 
   /// No description provided for @beneficiaryLabel.
   ///
@@ -1653,6 +1683,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your session expired. Please sign in again.'**
   String get sessionExpiredBanner;
+
+  /// No description provided for @trackSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow every stage of this month\'s ration, from plan to collection.'**
+  String get trackSubtitle;
+
+  /// No description provided for @journeyStepsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Journey steps'**
+  String get journeyStepsTitle;
+
+  /// No description provided for @notificationsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Real updates from your ration journey and grievances — nothing else.'**
+  String get notificationsSubtitle;
+
+  /// No description provided for @grievanceIntroSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us what happened. Choose a category, describe it, and we will route it for review.'**
+  String get grievanceIntroSubtitle;
+
+  /// No description provided for @helpSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get support, ask our assistant, or raise a concern.'**
+  String get helpSubtitle;
+
+  /// No description provided for @historySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Every collection, transaction and plan tied to your ration card.'**
+  String get historySubtitle;
+
+  /// No description provided for @myGrievancesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Track the status of every grievance you have raised.'**
+  String get myGrievancesSubtitle;
 }
 
 class _AppLocalizationsDelegate

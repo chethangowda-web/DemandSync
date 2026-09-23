@@ -304,6 +304,9 @@ class AppLocalizationsKn extends AppLocalizations {
   String get householdLabel => 'ಕುಟುಂಬ';
 
   @override
+  String get householdDetails => 'ಕುಟುಂಬದ ವಿವರಗಳು';
+
+  @override
   String get entitlementExplain =>
       'ನಿಮ್ಮ ಅರ್ಹತೆ ನಿಮ್ಮ ನೋಂದಾಯಿತ ಕುಟುಂಬ ಮತ್ತು ಯೋಜನೆಯ ಮಾಹಿತಿಯ ಮೇಲೆ ಆಧಾರಿತವಾಗಿದೆ.';
 
@@ -313,6 +316,9 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get cycleTitle => 'ಪ್ರಸ್ತುತ ಚಕ್ರ';
+
+  @override
+  String get cycleSubtitle => 'ಒಂದೇ ನೋಟದಲ್ಲಿ ನಿಮ್ಮ ಪಡಿತರ ಚಕ್ರ';
 
   @override
   String get periodLabel => 'ಚಕ್ರದ ಅವಧಿ';
@@ -428,6 +434,9 @@ class AppLocalizationsKn extends AppLocalizations {
   }
 
   @override
+  String get planSummary => 'ಯೋಜನೆ ಸಾರಾಂಶ';
+
+  @override
   String get reviewTitle => 'ನಿಮ್ಮ ಯೋಜನೆ ಪರಿಶೀಲಿಸಿ';
 
   @override
@@ -491,6 +500,9 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get receiptTitle => 'ಯೋಜನೆಯ ರಸೀದಿ';
+
+  @override
+  String get receiptDetails => 'ರಸೀದಿ ವಿವರಗಳು';
 
   @override
   String get trackTitle => 'ನನ್ನ ಪಡಿತರ ಟ್ರ್ಯಾಕ್ ಮಾಡಿ';
@@ -599,6 +611,9 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get digitalReceipt => 'ಡಿಜಿಟಲ್ ರಸೀದಿ';
+
+  @override
+  String get digitalReceiptSubtitle => 'ಇ-ಪಿಒಎಸ್ ವಹಿವಾಟು ದಾಖಲೆ';
 
   @override
   String get beneficiaryLabel => 'ಫಲಾನುಭವಿ';
@@ -876,4 +891,31 @@ class AppLocalizationsKn extends AppLocalizations {
   @override
   String get sessionExpiredBanner =>
       'ನಿಮ್ಮ ಸೆಷನ್ ಮುಗಿದಿದೆ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಸೈನ್ ಇನ್ ಮಾಡಿ.';
+
+  @override
+  String get trackSubtitle =>
+      'ಈ ತಿಂಗಳ ಪಡಿತರದ ಪ್ರತಿ ಹಂತವನ್ನು ಯೋಜನೆಯಿಂದ ಸಂಗ್ರಹಣೆಯವರೆಗೆ ಅನುಸರಿಸಿ.';
+
+  @override
+  String get journeyStepsTitle => 'ಪ್ರಯಾಣದ ಹಂತಗಳು';
+
+  @override
+  String get notificationsSubtitle =>
+      'ನಿಮ್ಮ ಪಡಿತರ ಪ್ರಯಾಣ ಮತ್ತು ಕುಂದುಕೊರತೆಗಳ ನಿಜವಾದ ಮಾಹಿತಿ — ಬೇರೇನೂ ಇಲ್ಲ.';
+
+  @override
+  String get grievanceIntroSubtitle =>
+      'ಏನಾಯಿತು ಎಂದು ನಮಗೆ ತಿಳಿಸಿ. ಒಂದು ವರ್ಗವನ್ನು ಆರಿಸಿ, ವಿವರಿಸಿ, ಮತ್ತು ನಾವು ಅದನ್ನು ಪರಿಶೀಲನೆಗೆ ಕಳುಹಿಸುತ್ತೇವೆ.';
+
+  @override
+  String get helpSubtitle =>
+      'ಸಹಾಯ ಪಡೆಯಿರಿ, ನಮ್ಮ ಸಹಾಯಕರನ್ನು ಕೇಳಿ, ಅಥವಾ ಕುಂದುಕೊರತೆ ದಾಖಲಿಸಿ.';
+
+  @override
+  String get historySubtitle =>
+      'ನಿಮ್ಮ ಪಡಿತರ ಚೀಟಿಗೆ ಸಂಬಂಧಿಸಿದ ಪ್ರತಿ ಸಂಗ್ರಹಣೆ, ವಹಿವಾಟು ಮತ್ತು ಯೋಜನೆ.';
+
+  @override
+  String get myGrievancesSubtitle =>
+      'ನೀವು ದಾಖಲಿಸಿದ ಪ್ರತಿ ಕುಂದುಕೊರತೆಯ ಸ್ಥಿತಿಯನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ.';
 }

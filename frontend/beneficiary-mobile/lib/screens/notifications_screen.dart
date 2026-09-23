@@ -24,12 +24,20 @@ class NotificationsScreen extends StatelessWidget {
           onRefresh: reload,
           child: items.isEmpty
               ? ListView(children: [
-                  const SizedBox(height: 120),
-                  Icon(Icons.notifications_none_rounded, size: 64, color: AppColors.textMuted.withValues(alpha: 0.7)),
+                  const SizedBox(height: 100),
+                  Center(child: IconBadge(icon: Icons.notifications_none_rounded, color: AppColors.textMuted, size: 64, iconSize: 30)),
                   const SizedBox(height: 14),
                   Center(child: Text(l.noNotifications, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.textMuted))),
                 ])
-              : ListView(padding: const EdgeInsets.all(16), children: [for (final n in items) _NotificationTile(item: n)]),
+              : ListView(padding: const EdgeInsets.all(16), children: [
+                  SectionHeader(
+                      icon: Icons.notifications_active_rounded,
+                      title: l.notificationsTitle,
+                      subtitle: l.notificationsSubtitle,
+                      badgeColor: AppColors.blue),
+                  const SizedBox(height: 14),
+                  for (final n in items) _NotificationTile(item: n),
+                ]),
         ),
       ),
     );
@@ -46,16 +54,16 @@ class _NotificationTile extends StatelessWidget {
     final t = Theme.of(context).textTheme;
     final isException = item.kind == 'EXCEPTION';
     return SectionCard(
+      tone: isException ? Tone.bad : Tone.good,
       onTap: () {
         final tabs = context.read<TabIndex>();
         Navigator.of(context).popUntil((r) => r.isFirst);
         tabs.go(item.view == 'track' ? 1 : (item.view == 'help' ? 3 : 0));
       },
       child: Row(children: [
-        CircleAvatar(
-          backgroundColor: isException ? AppColors.badSoft : AppColors.goodSoft,
-          child: Icon(isException ? Icons.error_outline_rounded : Icons.notifications_active_outlined,
-              color: isException ? AppColors.bad : AppColors.good),
+        IconBadge(
+          icon: isException ? Icons.error_outline_rounded : Icons.notifications_active_rounded,
+          color: isException ? AppColors.bad : AppColors.good,
         ),
         const SizedBox(width: 14),
         Expanded(
@@ -64,6 +72,7 @@ class _NotificationTile extends StatelessWidget {
             if (item.at != null) Text(dateText(item.at!.toLocal(), loc), style: t.bodyMedium?.copyWith(color: AppColors.textMuted)),
           ]),
         ),
+        const Icon(Icons.chevron_right_rounded, color: AppColors.textMuted),
       ]),
     );
   }

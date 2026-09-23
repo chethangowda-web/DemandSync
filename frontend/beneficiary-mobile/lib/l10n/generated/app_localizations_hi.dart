@@ -304,6 +304,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get householdLabel => 'परिवार';
 
   @override
+  String get householdDetails => 'परिवार का विवरण';
+
+  @override
   String get entitlementExplain =>
       'आपकी पात्रता आपके पंजीकृत परिवार और योजना की जानकारी पर आधारित है।';
 
@@ -313,6 +316,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get cycleTitle => 'वर्तमान चक्र';
+
+  @override
+  String get cycleSubtitle => 'एक नज़र में आपका राशन चक्र';
 
   @override
   String get periodLabel => 'चक्र की अवधि';
@@ -428,6 +434,9 @@ class AppLocalizationsHi extends AppLocalizations {
   }
 
   @override
+  String get planSummary => 'योजना सारांश';
+
+  @override
   String get reviewTitle => 'अपनी योजना जाँचें';
 
   @override
@@ -491,6 +500,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get receiptTitle => 'योजना की रसीद';
+
+  @override
+  String get receiptDetails => 'रसीद का विवरण';
 
   @override
   String get trackTitle => 'मेरा राशन ट्रैक करें';
@@ -598,6 +610,9 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get digitalReceipt => 'डिजिटल रसीद';
+
+  @override
+  String get digitalReceiptSubtitle => 'ई-पीओएस लेनदेन रिकॉर्ड';
 
   @override
   String get beneficiaryLabel => 'लाभार्थी';
@@ -872,4 +887,31 @@ class AppLocalizationsHi extends AppLocalizations {
   @override
   String get sessionExpiredBanner =>
       'आपका सत्र समाप्त हो गया। कृपया फिर साइन इन करें।';
+
+  @override
+  String get trackSubtitle =>
+      'इस महीने के राशन के हर चरण को योजना से संग्रहण तक देखें।';
+
+  @override
+  String get journeyStepsTitle => 'यात्रा के चरण';
+
+  @override
+  String get notificationsSubtitle =>
+      'आपकी राशन यात्रा और शिकायतों की असली सूचनाएं — और कुछ नहीं।';
+
+  @override
+  String get grievanceIntroSubtitle =>
+      'हमें बताएं कि क्या हुआ। एक श्रेणी चुनें, विवरण लिखें, और हम इसे समीक्षा के लिए भेजेंगे।';
+
+  @override
+  String get helpSubtitle =>
+      'सहायता पाएं, हमारे सहायक से पूछें, या शिकायत दर्ज करें।';
+
+  @override
+  String get historySubtitle =>
+      'आपके राशन कार्ड से जुड़ा हर संग्रहण, लेन-देन और योजना।';
+
+  @override
+  String get myGrievancesSubtitle =>
+      'आपके द्वारा दर्ज हर शिकायत की स्थिति देखें।';
 }

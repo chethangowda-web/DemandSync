@@ -22,24 +22,38 @@ class EntitlementScreen extends StatelessWidget {
       body: AsyncBody<Entitlement>(
         load: api.entitlement,
         builder: (context, e, reload) {
-          final t = Theme.of(context).textTheme;
           final used = e.totalKg == 0 ? 0.0 : (e.collectedTotalKg / e.totalKg).clamp(0.0, 1.0).toDouble();
           return RefreshIndicator(
             onRefresh: reload,
             child: ListView(padding: const EdgeInsets.all(16), children: [
               SectionCard(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(l.monthlyEntitlement, style: t.bodyMedium?.copyWith(color: AppColors.textMuted)),
-                  Text(cycleLabel(e.cycle, loc), style: t.titleLarge),
-                  const SizedBox(height: 10),
+                  SectionHeader(icon: Icons.verified_user_rounded, title: l.monthlyEntitlement, subtitle: cycleLabel(e.cycle, loc), badgeColor: AppColors.blue),
+                  const SizedBox(height: 14),
+                  Container(
+                    decoration: BoxDecoration(color: AppColors.goodSoft, borderRadius: BorderRadius.circular(12), border: Border.all(color: AppColors.good.withValues(alpha: 0.25))),
+                    padding: const EdgeInsets.all(14),
+                    child: Row(children: [
+                      const IconBadge(icon: Icons.donut_large_rounded, color: AppColors.good, size: 44),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(l.kgValue(kgText(e.totalKg)), style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.good, height: 1)),
+                          const SizedBox(height: 2),
+                          Text(l.total, style: const TextStyle(color: AppColors.textMuted, fontSize: 13, fontWeight: FontWeight.w600)),
+                        ]),
+                      ),
+                    ]),
+                  ),
+                  const SizedBox(height: 12),
                   KeyValueRow(label: l.rice, value: l.kgValue(kgText(e.riceKg))),
                   KeyValueRow(label: l.wheat, value: l.kgValue(kgText(e.wheatKg))),
-                  const Divider(),
-                  KeyValueRow(label: l.total, value: l.kgValue(kgText(e.totalKg)), strong: true),
                 ]),
               ),
               SectionCard(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  SectionHeader(icon: Icons.pie_chart_rounded, title: l.remainingThisCycle, badgeColor: AppColors.blue),
+                  const SizedBox(height: 14),
                   KeyValueRow(label: l.alreadyCollected, value: l.kgValue(kgText(e.collectedTotalKg))),
                   const SizedBox(height: 4),
                   Semantics(
@@ -47,13 +61,21 @@ class EntitlementScreen extends StatelessWidget {
                     child: ClipRRect(borderRadius: BorderRadius.circular(8), child: LinearProgressIndicator(value: used, minHeight: 12, backgroundColor: AppColors.blueSoft, color: AppColors.blue)),
                   ),
                   const SizedBox(height: 14),
-                  KeyValueRow(label: l.remainingThisCycle, value: l.kgValue(kgText(e.remainingTotalKg)), strong: true),
-                  KeyValueRow(label: '  ${l.rice}', value: l.kgValue(kgText(e.remainingRiceKg))),
-                  KeyValueRow(label: '  ${l.wheat}', value: l.kgValue(kgText(e.remainingWheatKg))),
+                  Container(
+                    decoration: BoxDecoration(color: AppColors.blueSoft, borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    child: Column(children: [
+                      KeyValueRow(label: l.remainingThisCycle, value: l.kgValue(kgText(e.remainingTotalKg)), strong: true),
+                      KeyValueRow(label: '  ${l.rice}', value: l.kgValue(kgText(e.remainingRiceKg))),
+                      KeyValueRow(label: '  ${l.wheat}', value: l.kgValue(kgText(e.remainingWheatKg))),
+                    ]),
+                  ),
                 ]),
               ),
               SectionCard(
-                child: Column(children: [
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  SectionHeader(icon: Icons.groups_rounded, title: l.householdDetails, badgeColor: AppColors.navy),
+                  const SizedBox(height: 10),
                   KeyValueRow(label: l.schemeLabel, value: schemeLabel(l, e.scheme)),
                   KeyValueRow(label: l.householdLabel, value: l.householdMembers('${e.householdSize}')),
                   KeyValueRow(label: l.cycleData, value: cycleLabel(e.cycle, loc)),
@@ -62,7 +84,7 @@ class EntitlementScreen extends StatelessWidget {
               SectionCard(
                 tone: Tone.info,
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Icon(Icons.info_outline, color: AppColors.blue),
+                  const IconBadge(icon: Icons.info_outline_rounded, color: AppColors.blue, size: 34),
                   const SizedBox(width: 12),
                   Expanded(child: Text('${l.entitlementExplain}\n${l.entitlementReadOnly}')),
                 ]),

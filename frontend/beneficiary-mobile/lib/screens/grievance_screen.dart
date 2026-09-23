@@ -88,7 +88,7 @@ class _GrievanceScreenState extends State<GrievanceScreen> {
         body: SafeArea(
           child: ListView(padding: const EdgeInsets.all(20), children: [
             const SizedBox(height: 20),
-            const Center(child: CircleAvatar(radius: 40, backgroundColor: AppColors.goodSoft, child: Icon(Icons.check_rounded, size: 48, color: AppColors.good))),
+            const Center(child: IconBadge(icon: Icons.check_rounded, color: AppColors.good, size: 84, iconSize: 44)),
             const SizedBox(height: 16),
             Semantics(header: true, liveRegion: true, child: Text(l.grievanceSubmitted, textAlign: TextAlign.center, style: t.headlineSmall)),
             const SizedBox(height: 8),
@@ -108,24 +108,30 @@ class _GrievanceScreenState extends State<GrievanceScreen> {
         child: Column(children: [
           Expanded(
             child: ListView(padding: const EdgeInsets.all(16), children: [
-              Semantics(header: true, child: Text(l.chooseIssue, style: t.titleLarge)),
-              const SizedBox(height: 10),
-              Wrap(spacing: 8, runSpacing: 8, children: [
-                for (final c in grievanceCategories)
-                  ChoiceChip(
-                    avatar: Icon(_categoryIcons[c], size: 20),
-                    label: Text(categoryLabel(l, c), style: const TextStyle(fontSize: 15)),
-                    selected: _category == c,
-                    showCheckmark: true,
-                    onSelected: (_) => setState(() => _category = c),
-                    materialTapTargetSize: MaterialTapTargetSize.padded,
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                  ),
-              ]),
+              Semantics(
+                header: true,
+                child: SectionHeader(icon: Icons.report_problem_rounded, title: l.chooseIssue, subtitle: l.grievanceIntroSubtitle, badgeColor: AppColors.warn),
+              ),
+              const SizedBox(height: 14),
+              SectionCard(
+                child: Wrap(spacing: 8, runSpacing: 8, children: [
+                  for (final c in grievanceCategories)
+                    ChoiceChip(
+                      avatar: Icon(_categoryIcons[c], size: 20),
+                      label: Text(categoryLabel(l, c), style: const TextStyle(fontSize: 15)),
+                      selected: _category == c,
+                      showCheckmark: true,
+                      onSelected: (_) => setState(() => _category = c),
+                      materialTapTargetSize: MaterialTapTargetSize.padded,
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                    ),
+                ]),
+              ),
               const SizedBox(height: 18),
-              Semantics(header: true, child: Text(l.describeIssue, style: t.titleMedium)),
-              const SizedBox(height: 8),
+              Semantics(header: true, child: SectionHeader(icon: Icons.edit_note_rounded, title: l.describeIssue, badgeColor: AppColors.blue)),
+              const SizedBox(height: 10),
               TextField(controller: _text, maxLines: 5, minLines: 4, maxLength: 500, onChanged: (_) => setState(() {}), decoration: InputDecoration(hintText: l.describeHint, counterText: l.charCount('${_text.text.length}'))),
+              const SizedBox(height: 8),
               BigButton(label: l.aiSuggest, icon: Icons.auto_awesome_outlined, style: BigButtonStyle.secondary, onPressed: _text.text.trim().length >= 5 ? _suggest : null, loading: _suggesting),
               if (_suggestion != null) ...[
                 const SizedBox(height: 12),
@@ -133,7 +139,7 @@ class _GrievanceScreenState extends State<GrievanceScreen> {
                   tone: Tone.info,
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                     Row(children: [
-                      const Icon(Icons.auto_awesome, color: AppColors.blue),
+                      const IconBadge(icon: Icons.auto_awesome_rounded, color: AppColors.blue, size: 32, iconSize: 17),
                       const SizedBox(width: 10),
                       Expanded(child: Text(l.aiSuggestion(categoryLabel(l, _suggestion!.category)), style: t.titleMedium)),
                     ]),
@@ -192,15 +198,31 @@ class MyGrievancesScreen extends StatelessWidget {
         builder: (context, items, reload) => RefreshIndicator(
           onRefresh: reload,
           child: items.isEmpty
-              ? ListView(children: [const SizedBox(height: 120), Center(child: Text(l.noGrievances, style: t.titleMedium?.copyWith(color: AppColors.textMuted)))])
+              ? ListView(children: [
+                  const SizedBox(height: 100),
+                  Center(child: IconBadge(icon: Icons.list_alt_rounded, color: AppColors.textMuted, size: 64, iconSize: 30)),
+                  const SizedBox(height: 14),
+                  Center(child: Text(l.noGrievances, style: t.titleMedium?.copyWith(color: AppColors.textMuted))),
+                ])
               : ListView(padding: const EdgeInsets.all(16), children: [
+                  SectionHeader(icon: Icons.list_alt_rounded, title: l.myGrievances, subtitle: l.myGrievancesSubtitle, badgeColor: AppColors.blue),
+                  const SizedBox(height: 14),
                   for (final g in items)
                     SectionCard(
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Row(children: [
-                          Expanded(child: Text(categoryLabel(l, g.category), style: t.titleMedium)),
-                          StatusChip(label: grievanceStatusLabel(l, g.status), tone: switch (g.status) { 'RESOLVED' || 'CLOSED' => Tone.good, 'IN_REVIEW' => Tone.info, _ => Tone.warn }, icon: g.status == 'RESOLVED' || g.status == 'CLOSED' ? Icons.check_circle_outline : Icons.hourglass_top_rounded),
-                        ]),
+                        LayoutBuilder(builder: (context, c) {
+                          final narrow = c.maxWidth < 340 || MediaQuery.textScaleFactorOf(context) > 1.4;
+                          final left = Row(mainAxisSize: MainAxisSize.min, children: [
+                            IconBadge(icon: _categoryIcons[g.category] ?? Icons.more_horiz_rounded, color: AppColors.blue, size: 34, iconSize: 18),
+                            const SizedBox(width: 10),
+                            Text(categoryLabel(l, g.category), style: t.titleMedium),
+                          ]);
+                          final chip = StatusChip(label: grievanceStatusLabel(l, g.status), tone: switch (g.status) { 'RESOLVED' || 'CLOSED' => Tone.good, 'IN_REVIEW' => Tone.info, _ => Tone.warn }, icon: g.status == 'RESOLVED' || g.status == 'CLOSED' ? Icons.check_circle_outline : Icons.hourglass_top_rounded);
+                          if (narrow) {
+                            return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [left, const SizedBox(height: 8), chip]);
+                          }
+                          return Row(children: [Expanded(child: left), const SizedBox(width: 8), chip]);
+                        }),
                         const SizedBox(height: 6),
                         Text(g.description, maxLines: 3, overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 6),

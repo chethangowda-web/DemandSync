@@ -10,6 +10,7 @@ import 'entitlement_screen.dart';
 import 'plan_screen.dart';
 import 'receipt_screen.dart';
 import 'assistant_screen.dart';
+import 'notifications_screen.dart';
 
 /// PDS DemandSYNC — My Ration (reference rebuild)
 /// Government-grade, single-scroll home that mirrors the supplied reference screenshot.
@@ -217,6 +218,11 @@ class _GovHeader extends StatelessWidget {
                             fontWeight: FontWeight.w500)),
                   ]),
             ),
+            IconButton(
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                    builder: (_) => const NotificationsScreen())),
+                icon: const Icon(Icons.notifications_outlined,
+                    color: Colors.white, size: 24)),
             const LanguageButton(light: true),
             const SizedBox(width: 4),
             InkWell(

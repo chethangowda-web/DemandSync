@@ -554,6 +554,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historyTitle => 'My history';
 
   @override
+  String get notificationsTitle => 'Notifications';
+
+  @override
+  String get noNotifications => 'No notifications yet';
+
+  @override
   String get tabCollections => 'Collections';
 
   @override

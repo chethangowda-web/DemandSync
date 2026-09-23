@@ -554,6 +554,12 @@ class AppLocalizationsHi extends AppLocalizations {
   String get historyTitle => 'मेरा इतिहास';
 
   @override
+  String get notificationsTitle => 'सूचनाएं';
+
+  @override
+  String get noNotifications => 'अभी कोई सूचना नहीं है';
+
+  @override
   String get tabCollections => 'संग्रह';
 
   @override

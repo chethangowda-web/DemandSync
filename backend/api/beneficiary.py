@@ -9,6 +9,7 @@ from backend.core.errors import ApiError
 from backend.core.rbac import Role
 from backend.db.conn import get_db
 from backend.services import assistant, beneficiary as svc
+from backend.services import workflow as wf
 
 router = APIRouter(prefix="/api/v1", tags=["beneficiary"])
 Beneficiary = Depends(require_role(Role.BENEFICIARY))
@@ -115,6 +116,11 @@ def submit_intent(req: IntentRequest, user=Beneficiary, conn=Depends(get_db)):
     conn.commit()  # the record exists before it is audited
     write_audit(bid, "BENEFICIARY", "PREFERENCE_SUBMITTED", "SUCCESS", f"{receipt['total_kg']} kg at {receipt['fps']['fps_id']}",
                 "INTENT", receipt["reference"], receipt["cycle"])
+    wf.emit(conn, cycle=receipt["cycle"], event_type="BENEFICIARY_INTENT_SUBMITTED",
+            source_role="BENEFICIARY", target_role="DSO", entity_type="INTENT",
+            entity_id=receipt["reference"], created_by=bid,
+            payload={"fps_id": receipt["fps"]["fps_id"], "total_kg": receipt["total_kg"]})
+    conn.commit()
     return receipt
 
 
@@ -146,6 +152,11 @@ def tracking(cycle: str | None = None, user=Beneficiary, conn=Depends(get_db)):
     if c is None:
         raise ApiError(404, "NO_ACTIVE_CYCLE", "There is no active cycle right now.")
     return svc.get_journey(conn, user["beneficiary_id"], c["cycle"])
+
+
+@router.get("/notifications/me")
+def notifications(cycle: str | None = None, user=Beneficiary, conn=Depends(get_db)):
+    return {"notifications": svc.notifications(conn, user["beneficiary_id"], cycle)}
 
 
 @router.get("/history/me")

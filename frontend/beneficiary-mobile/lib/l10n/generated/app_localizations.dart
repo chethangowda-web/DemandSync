@@ -1078,6 +1078,18 @@ abstract class AppLocalizations {
   /// **'My history'**
   String get historyTitle;
 
+  /// No description provided for @notificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsTitle;
+
+  /// No description provided for @noNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get noNotifications;
+
   /// No description provided for @tabCollections.
   ///
   /// In en, this message translates to:

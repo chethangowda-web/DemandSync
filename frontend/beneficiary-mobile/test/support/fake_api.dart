@@ -118,4 +118,7 @@ class FakeApi implements ApiClient {
   @override
   Future<List<Cycle>> cycles() =>
       _do('cycles', () => [Cycle.fromJson(fixture('home_open')['cycle'] as Map<String, dynamic>)]);
+
+  @override
+  Future<List<AppNotification>> notifications({String? cycle}) => _do('notifications', () => <AppNotification>[]);
 }

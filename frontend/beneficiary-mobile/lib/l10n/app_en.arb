@@ -319,6 +319,8 @@
   "cycleData": "Cycle",
   "dataNoteInferred": "Dispatch is confirmed by the delivery record",
   "historyTitle": "My history",
+  "notificationsTitle": "Notifications",
+  "noNotifications": "No notifications yet",
   "tabCollections": "Collections",
   "tabTransactions": "Transactions",
   "tabIntents": "Intents",

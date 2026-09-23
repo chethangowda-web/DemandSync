@@ -163,6 +163,8 @@
   "cycleData": "ಚಕ್ರ",
   "dataNoteInferred": "ರವಾನೆಯನ್ನು ಸರಬರಾಜು ದಾಖಲೆಯಿಂದ ದೃಢೀಕರಿಸಲಾಗಿದೆ",
   "historyTitle": "ನನ್ನ ಇತಿಹಾಸ",
+  "notificationsTitle": "ಅಧಿಸೂಚನೆಗಳು",
+  "noNotifications": "ಇನ್ನೂ ಯಾವುದೇ ಅಧಿಸೂಚನೆಗಳಿಲ್ಲ",
   "tabCollections": "ಸಂಗ್ರಹಗಳು",
   "tabTransactions": "ವಹಿವಾಟುಗಳು",
   "tabIntents": "ಯೋಜನೆಗಳು",

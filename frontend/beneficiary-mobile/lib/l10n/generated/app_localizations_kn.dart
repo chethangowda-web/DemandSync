@@ -554,6 +554,12 @@ class AppLocalizationsKn extends AppLocalizations {
   String get historyTitle => 'ನನ್ನ ಇತಿಹಾಸ';
 
   @override
+  String get notificationsTitle => 'ಅಧಿಸೂಚನೆಗಳು';
+
+  @override
+  String get noNotifications => 'ಇನ್ನೂ ಯಾವುದೇ ಅಧಿಸೂಚನೆಗಳಿಲ್ಲ';
+
+  @override
   String get tabCollections => 'ಸಂಗ್ರಹಗಳು';
 
   @override

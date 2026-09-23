@@ -34,6 +34,7 @@ abstract class ApiClient {
   Future<GrievanceSuggestion> suggestGrievance(String description);
   Future<Grievance> submitGrievance({required String category, required String description, String? relatedTransactionId, String? cycle});
   Future<List<Grievance>> myGrievances();
+  Future<List<AppNotification>> notifications({String? cycle});
 }
 
 class HttpApiClient implements ApiClient {
@@ -200,4 +201,8 @@ class HttpApiClient implements ApiClient {
 
   @override
   Future<List<Grievance>> myGrievances() async => _list(await _send('GET', '/api/v1/grievances/me'), 'grievances').map(Grievance.fromJson).toList();
+
+  @override
+  Future<List<AppNotification>> notifications({String? cycle}) async =>
+      _list(await _send('GET', '/api/v1/notifications/me', query: {'cycle': cycle}), 'notifications').map(AppNotification.fromJson).toList();
 }

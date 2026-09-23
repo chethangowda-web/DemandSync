@@ -319,6 +319,51 @@ def get_journey(conn, beneficiary_id: str, cycle: str) -> dict:
             "telemetry_note": None if telemetry else ("LIVE_LOCATION_UNAVAILABLE" if in_transit_phase else None)}
 
 
+# ------------------------------------------------------------------ notifications
+
+_STEP_MESSAGE = {
+    "INTENT_SUBMITTED": "Your ration plan has been submitted.",
+    "DEMAND_PLANNED": "Your ration demand is being processed.",
+    "ALLOCATED": "Your ration has been allocated.",
+    "DISPATCHED": "Your ration has been dispatched.",
+    "IN_TRANSIT": "Your ration is on the way.",
+    "RECEIVED_AT_FPS": "Your ration has reached your ration shop.",
+    "AVAILABLE_FOR_COLLECTION": "Your ration is ready for collection.",
+    "COLLECTED": "Your ration has been successfully collected.",
+}
+_GRIEVANCE_MESSAGE = {
+    "OPEN": "Your complaint has been received.",
+    "IN_PROGRESS": "Your complaint is being reviewed.",
+    "RESOLVED": "Your complaint has been resolved.",
+    "REJECTED": "Your complaint could not be upheld.",
+}
+
+
+def notifications(conn, beneficiary_id: str, cycle: str | None) -> list[dict]:
+    """A read-only feed of real workflow events for this beneficiary, derived from the same journey and
+    grievance records shown elsewhere -- there is no separate notification table to fall out of sync."""
+    items: list[dict] = []
+    c = get_cycle(conn, cycle)
+    if c:
+        journey = get_journey(conn, beneficiary_id, c["cycle"])
+        for step in journey["steps"]:
+            if step["status"] == "DONE" and step["key"] in _STEP_MESSAGE:
+                items.append({"id": f"{c['cycle']}:{step['key']}", "message": _STEP_MESSAGE[step["key"]],
+                              "at": step["at"], "cycle": c["cycle"], "kind": "JOURNEY", "view": "track"})
+            elif step["status"] == "DELAYED":
+                items.append({"id": f"{c['cycle']}:{step['key']}:delayed",
+                              "message": "There is an issue with your ration delivery.",
+                              "at": step["at"], "cycle": c["cycle"], "kind": "EXCEPTION", "view": "track"})
+    for g in list_grievances(conn, beneficiary_id):
+        msg = _GRIEVANCE_MESSAGE.get(g["status"])
+        if msg:
+            items.append({"id": f"grievance:{g['grievance_id']}", "message": msg,
+                          "at": iso(g["resolved_at"] or g["created_at"]), "cycle": g["cycle"],
+                          "kind": "GRIEVANCE", "view": "help"})
+    items.sort(key=lambda n: n["at"] or "", reverse=True)
+    return items
+
+
 # ------------------------------------------------------------------ history & receipts
 
 def history(conn, beneficiary_id: str, kind: str, limit: int, offset: int) -> list[dict]:

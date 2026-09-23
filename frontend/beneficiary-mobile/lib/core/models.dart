@@ -419,6 +419,22 @@ class Grievance {
       );
 }
 
+class AppNotification {
+  AppNotification({required this.id, required this.message, required this.at, required this.cycle,
+      required this.kind, required this.view});
+  final String id, message, kind;
+  final String? cycle, view;
+  final DateTime? at;
+  factory AppNotification.fromJson(Map<String, dynamic> j) => AppNotification(
+        id: j['id'] as String,
+        message: j['message'] as String,
+        at: _date(j['at']),
+        cycle: _str(j['cycle']),
+        kind: j['kind'] as String,
+        view: _str(j['view']),
+      );
+}
+
 class OtpRequestResult {
   OtpRequestResult({required this.expiresInSeconds, required this.devOtp});
   final int expiresInSeconds;

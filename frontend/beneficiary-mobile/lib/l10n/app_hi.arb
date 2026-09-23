@@ -163,6 +163,8 @@
   "cycleData": "चक्र",
   "dataNoteInferred": "भेजे जाने की पुष्टि डिलीवरी रिकॉर्ड से हुई",
   "historyTitle": "मेरा इतिहास",
+  "notificationsTitle": "सूचनाएं",
+  "noNotifications": "अभी कोई सूचना नहीं है",
   "tabCollections": "संग्रह",
   "tabTransactions": "लेन-देन",
   "tabIntents": "योजनाएँ",

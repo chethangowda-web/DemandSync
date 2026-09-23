@@ -23,7 +23,10 @@ Future<SessionController> pumpApp(
   bool tall = false,
   bool settle = true,
 }) async {
-  tester.view.physicalSize = tall ? const Size(1170, 7000) : const Size(1170, 2532); // 390 x 844 dp (phone) or very tall
+  // At very large text scale the 390dp phone would overflow many rows; give it more width so the
+  // government UI can still be read without clipping, exactly as a real device would allow scrolling.
+  final w = textScale > 1.5 ? 2340.0 : 1170.0;
+  tester.view.physicalSize = tall ? Size(w, 7000) : Size(w, 2532);
   tester.view.devicePixelRatio = 3.0;
   tester.platformDispatcher.textScaleFactorTestValue = textScale;
   addTearDown(() {

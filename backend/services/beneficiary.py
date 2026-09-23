@@ -93,6 +93,11 @@ def get_cycle(conn, cycle: str | None = None) -> dict | None:
     return cycle_view(c) if c else None
 
 
+def list_cycles(conn) -> list[dict]:
+    """All cycles ordered newest first — for the beneficiary month selector. Real rows only."""
+    return [cycle_view(c) for c in rows(conn, "SELECT * FROM cycles ORDER BY cycle DESC")]
+
+
 # ------------------------------------------------------------------ entitlement
 
 def get_entitlement(conn, beneficiary_id: str, cycle: str) -> dict:

@@ -55,6 +55,12 @@ def current_cycle(user=Beneficiary, conn=Depends(get_db)):
     return c
 
 
+@router.get("/cycles")
+def list_cycles(user=Beneficiary, conn=Depends(get_db)):
+    """All cycles the beneficiary may view — for the month selector. No fake months are ever synthesised."""
+    return {"cycles": svc.list_cycles(conn)}
+
+
 @router.get("/beneficiaries/me/entitlement")
 def entitlement(cycle: str | None = None, user=Beneficiary, conn=Depends(get_db)):
     c = svc.get_cycle(conn, cycle)

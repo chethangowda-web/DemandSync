@@ -33,9 +33,9 @@ class Fps {
 
 class Beneficiary {
   Beneficiary({required this.id, required this.rationCardId, required this.name, required this.householdSize,
-      required this.scheme, required this.district, required this.taluk});
+      required this.scheme, required this.district, required this.taluk, required this.status});
 
-  final String id, rationCardId, name, scheme, district;
+  final String id, rationCardId, name, scheme, district, status;
   final String? taluk;
   final int householdSize;
 
@@ -47,6 +47,7 @@ class Beneficiary {
         scheme: j['scheme'] as String,
         district: j['district'] as String,
         taluk: _str(j['taluk']),
+        status: (_str(j['status']) ?? 'ACTIVE'),
       );
 }
 

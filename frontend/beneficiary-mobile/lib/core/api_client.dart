@@ -16,6 +16,7 @@ abstract class ApiClient {
   Future<HomeData> home();
   Future<Entitlement> entitlement({String? cycle});
   Future<List<Fps>> eligibleFps();
+  Future<List<Cycle>> cycles();
 
   Future<IntentReceipt> submitIntent({required String fpsId, required int riceKg, required int wheatKg, required String mode});
   Future<IntentReceipt> intentReceipt(String reference);
@@ -130,6 +131,12 @@ class HttpApiClient implements ApiClient {
 
   @override
   Future<List<Fps>> eligibleFps() async => _list(await _send('GET', '/api/v1/fps/eligible'), 'fps').map(Fps.fromJson).toList();
+
+  @override
+  Future<List<Cycle>> cycles() async {
+    final j = _obj(await _send('GET', '/api/v1/cycles'));
+    return ((j['cycles'] as List).cast<Map<String, dynamic>>()).map(Cycle.fromJson).toList();
+  }
 
   @override
   Future<IntentReceipt> submitIntent({required String fpsId, required int riceKg, required int wheatKg, required String mode}) async =>

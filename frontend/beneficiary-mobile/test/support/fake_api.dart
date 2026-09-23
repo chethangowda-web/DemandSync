@@ -114,4 +114,8 @@ class FakeApi implements ApiClient {
   @override
   Future<List<Grievance>> myGrievances() =>
       _do('myGrievances', () => (fixture('grievances')['grievances'] as List).map((j) => Grievance.fromJson(j as Map<String, dynamic>)).toList());
+
+  @override
+  Future<List<Cycle>> cycles() =>
+      _do('cycles', () => [Cycle.fromJson(fixture('home_open')['cycle'] as Map<String, dynamic>)]);
 }

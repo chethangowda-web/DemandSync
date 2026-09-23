@@ -24,7 +24,10 @@ function Shell() {
   // The DSO control centre carries its own operations rail and command bar, and sign-in is a
   // full-bleed screen of its own; a second global nav on top of either would just be chrome
   // competing with chrome.
-  const ownsItsChrome = pathname.startsWith('/dso') || pathname === '/login';
+  // Portals that render their own full chrome (headers, workflow bars). Matched by
+  // inclusion so they stay suppressed under any deploy base path or nested route.
+  const ownsItsChrome = pathname === '/login' || ['/dso', '/inspector', '/fps', '/auditor', '/admin']
+    .some((seg) => pathname.includes(seg));
   return (
     <>
       {!ownsItsChrome && (

@@ -29,3 +29,11 @@ async def validation_exception_handler(_: Request, exc: RequestValidationError) 
     first = exc.errors()[0] if exc.errors() else {}
     where = ".".join(str(x) for x in first.get("loc", []) if x != "body")
     return JSONResponse({"detail": f"Invalid request: {where} {first.get('msg', '')}".strip(), "code": "INVALID_REQUEST"}, status_code=422)
+
+
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Catch-all for bugs: log the real error server-side, return a stable friendly 500."""
+    import logging
+    logging.getLogger("demandsync.unhandled").exception("unhandled error on %s %s", request.method, request.url.path)
+    return JSONResponse({"detail": "Something went wrong on our side. Please try again in a moment.",
+                         "code": "INTERNAL_ERROR"}, status_code=500)

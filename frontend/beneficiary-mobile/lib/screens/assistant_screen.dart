@@ -40,6 +40,23 @@ class _AssistantScreenState extends State<AssistantScreen> {
   final _scroll = ScrollController();
   final List<_Message> _messages = [];
   bool _busy = false;
+  IntelSummary? _intel;
+
+  @override
+  void initState() {
+    super.initState();
+    // Phase 8: beneficiary-scoped intelligence (own records only, advisory).
+    // Failure here must never block the assistant below.
+    final api = context.read<ApiClient>();
+    Future.microtask(() async {
+      try {
+        final s = await api.intelSummary();
+        if (mounted) setState(() => _intel = s);
+      } catch (_) {
+        // Silent: the assistant conversation below remains fully usable.
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -110,6 +127,29 @@ class _AssistantScreenState extends State<AssistantScreen> {
           Expanded(
             child: ListView(controller: _scroll, padding: const EdgeInsets.all(16), children: [
               _Bubble(text: l.assistantHello, mine: false),
+              if (_intel != null)
+                for (final card in _intel!.cards)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: const Border(left: BorderSide(color: AppColors.blue, width: 4)),
+                    ),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Row(children: [
+                        Expanded(child: Text(card.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700))),
+                        const _AdvisoryChip(),
+                      ]),
+                      const SizedBox(height: 4),
+                      Text(card.summary, style: const TextStyle(fontSize: 14.5, height: 1.4)),
+                      if (card.recommendation != null) ...[
+                        const SizedBox(height: 6),
+                        Text(card.recommendation!, style: const TextStyle(fontSize: 13, color: AppColors.textMuted)),
+                      ],
+                    ]),
+                  ),
               for (final m in _messages)
                 _Bubble(
                   text: m.text,
@@ -163,8 +203,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
 }
 
 class _Bubble extends StatelessWidget {
-  const _Bubble({required this.text, required this.mine, this.footer, this.error = false});
-  final String text;
+  const _Bubble({required this.text, required this.mine, this.footer, this.error = false});  final String text;
   final bool mine, error;
   final Widget? footer;
 
@@ -190,6 +229,24 @@ class _Bubble extends StatelessWidget {
           ]),
         ),
       ),
+    );
+  }
+}
+
+/// Advisory marker shared by Phase 8 intelligence cards.
+class _AdvisoryChip extends StatelessWidget {
+  const _AdvisoryChip();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.blueSoft,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: AppColors.blue),
+      ),
+      child: const Text('ADVISORY', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.blue)),
     );
   }
 }

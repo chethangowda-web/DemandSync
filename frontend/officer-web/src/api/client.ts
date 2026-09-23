@@ -14,12 +14,24 @@ export const setToken = (t: string | null) => {
 
 export async function api<T = any>(path: string, opts: RequestInit = {}): Promise<T> {
   const token = getToken();
-  const res = await fetch(`${BASE}${path}`, {
-    ...opts,
-    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(opts.headers as any) },
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      ...opts,
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(opts.headers as any) },
+    });
+  } catch {
+    // Backend down, proxy ECONNREFUSED, or browser offline: fetch itself throws (TypeError).
+    throw new ApiError(0, 'Could not reach the server. Please check your connection and try again.');
+  }
   if (!res.ok) {
-    let detail = res.statusText;
+    // 5xx (including the Vite dev proxy's empty-body 500 "Internal Server Error" when the
+    // API process is not running) is never actionable by the officer: show a friendly
+    // message instead of the raw HTTP status text.
+    if (res.status >= 500 || res.status === 0) {
+      throw new ApiError(res.status, 'Something went wrong on our side. Please try again in a moment.');
+    }
+    let detail = '';
     try { const j = await res.json(); detail = typeof j.detail === 'string' ? j.detail : JSON.stringify(j.detail); } catch { /* not json */ }
     throw new ApiError(res.status, detail || `Request failed (${res.status})`);
   }

@@ -14,6 +14,8 @@ import { DemandChart } from '../components/DemandChart';
 import { DemandSignal } from '../components/DemandSignal';
 import { AIBrief } from '../components/AIBrief';
 import { ExceptionTable, SeverityStrip } from '../components/Exceptions';
+import { AskPanel, BriefView } from '../../components/Intelligence';
+import { intel } from '../../api/intelligence';
 
 export default function CommandCentre() {
   const { cycle, summary, summaryError, refresh } = useCycle();
@@ -31,6 +33,9 @@ export default function CommandCentre() {
     if (!row) return null;
     try { return await dso.aiForecast(cycle, row.fps_id, row.commodity); } catch { return null; }
   }, [cycle, demandQ.data]);
+
+  // Phase 8 cross-portal brief: deterministic counts from persisted records.
+  const briefQ = useData(() => (cycle ? intel.dsoBrief(cycle) : Promise.resolve(null)), [cycle]);
 
   if (!cycle) return <Loading what="Loading cycles" />;
   if (summaryError) return <ErrorNote error={summaryError} onRetry={refresh} />;
@@ -107,6 +112,16 @@ export default function CommandCentre() {
           <Panel title="AI operations brief" subtitle="Advisory signals — the officer decides">
             {demandQ.loading || aiQ.loading ? <Loading what="Assessing" />
               : <AIBrief summary={sm} ai={aiQ.data ?? null} />}
+          </Panel>
+
+          <Panel title="Cross-portal intelligence" subtitle="Grounded brief and assistant — reads records, decides nothing">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: s(4) }}>
+              <Region q={briefQ}>
+                {brief => brief ? <BriefView brief={brief} />
+                  : <DataUnavailable what="No brief" why="No cycle records available." />}
+              </Region>
+              <AskPanel cycle={cycle} />
+            </div>
           </Panel>
 
           <Panel title="Cycle integrity">

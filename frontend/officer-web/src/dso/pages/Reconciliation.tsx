@@ -11,6 +11,8 @@ import { useCycle } from '../DsoLayout';
 import { c, dateTime, font, kg, label, num, s } from '../theme';
 import { Badge, DataUnavailable, Drawer, ErrorNote, Facts, Loading, Metric, MetricStrip, Panel, Region, Table, td, tdMono, useData } from '../ui';
 import { StageRail } from '../components/Situation';
+import { IntelSection } from '../../components/Intelligence';
+import { intel } from '../../api/intelligence';
 import { ActionCard, DecisionGate, checksFromMap } from '../components/Gate';
 
 function DeliveryForm({ manifest, onDone, onError }:
@@ -102,6 +104,9 @@ export default function ReconciliationPage() {
     <>
       <Panel title="Delivery & reconciliation" subtitle="Stage 07 · confirm what arrived, then close the cycle">
         <StageRail state={summary?.state} />
+        <IntelSection title="Reconciliation intelligence" subtitle="Expected vs actual with source records — advisory only"
+          fetch={() => intel.dsoAnomalies(cycle ?? undefined).then(r => r.anomalies.filter(a => a.type.startsWith('RECONCILIATION')))}
+          emptyWhy="No reconciliation variance detected in this cycle." />
       </Panel>
 
       {err && <ErrorNote error={err} />}

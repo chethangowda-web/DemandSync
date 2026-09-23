@@ -10,6 +10,8 @@ import { DemandRow, dso } from '../api';
 import { c, font, kg, label, num, s } from '../theme';
 import { Badge, DataUnavailable, ErrorNote, Loading, Panel, Region, Table, td, tdMono, useData } from '../ui';
 import { StageRail } from '../components/Situation';
+import { IntelSection } from '../../components/Intelligence';
+import { intel } from '../../api/intelligence';
 import { DemandChart } from '../components/DemandChart';
 import { DemandSignal } from '../components/DemandSignal';
 import { ActionCard } from '../components/Gate';
@@ -42,6 +44,9 @@ export default function DemandIntelligence() {
     <>
       <Panel title="Demand intelligence" subtitle="Stage 01–02 · what beneficiaries asked for, and sealing it">
         <StageRail state={summary?.state} />
+        <IntelSection title="Demand intelligence" subtitle="Intent vs forecast vs baseline — advisory only"
+          fetch={() => intel.dsoAnomalies(cycle ?? undefined).then(r => r.anomalies.filter(a => a.type.startsWith('DEMAND')))}
+          emptyWhy="No demand deviation crosses the statistical threshold in this cycle." />
       </Panel>
 
       {err && <ErrorNote error={err} />}

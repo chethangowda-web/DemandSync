@@ -10,6 +10,8 @@ import { Allocation as Alloc, Exception, dso } from '../api';
 import { c, font, kg, label, num, s } from '../theme';
 import { Badge, Bar, DataUnavailable, ErrorNote, Loading, Metric, MetricStrip, Panel, Region, Table, td, tdMono, useData } from '../ui';
 import { StageRail } from '../components/Situation';
+import { IntelSection } from '../../components/Intelligence';
+import { intel } from '../../api/intelligence';
 import { ActionCard } from '../components/Gate';
 import { ExceptionDrawer } from '../components/Exceptions';
 
@@ -57,6 +59,9 @@ export default function AllocationPage() {
     <>
       <Panel title="Allocation control" subtitle="Stage 03 · six constraint gates over the sealed demand">
         <StageRail state={summary?.state} />
+        <IntelSection title="Allocation intelligence" subtitle="Why each allocation is what it is — advisory only"
+          fetch={() => intel.dsoRisks(cycle ?? undefined).then(r => r.risks.filter(a => ['ALLOCATION_RISK', 'STOCK_RISK', 'STOCKOUT_RISK'].includes(a.type)))}
+          emptyWhy="No allocation or stock risk in this cycle." />
       </Panel>
 
       {err && <ErrorNote error={err} />}

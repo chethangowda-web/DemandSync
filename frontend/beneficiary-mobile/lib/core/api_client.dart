@@ -28,6 +28,8 @@ abstract class ApiClient {
   Future<DigitalReceipt> digitalReceipt(String transactionId);
 
   Future<AssistantAnswer> ask({String? question, String? intent, required String language});
+  Future<IntelSummary> intelSummary();
+  Future<IntelAnswer> intelAsk(String question);
   Future<GrievanceSuggestion> suggestGrievance(String description);
   Future<Grievance> submitGrievance({required String category, required String description, String? relatedTransactionId, String? cycle});
   Future<List<Grievance>> myGrievances();
@@ -165,6 +167,16 @@ class HttpApiClient implements ApiClient {
   Future<AssistantAnswer> ask({String? question, String? intent, required String language}) async =>
       AssistantAnswer.fromJson(_obj(await _send('POST', '/api/v1/ai/assistant',
           body: {if (question != null) 'question': question, if (intent != null) 'intent': intent, 'language': language})));
+
+  /// Phase 8 cross-portal intelligence, strictly scoped server-side to the
+  /// signed-in beneficiary's own records. Advisory only — no writes.
+  @override
+  Future<IntelSummary> intelSummary() async =>
+      IntelSummary.fromJson(_obj(await _send('GET', '/api/v1/intelligence/beneficiary/me/summary')));
+
+  @override
+  Future<IntelAnswer> intelAsk(String question) async =>
+      IntelAnswer.fromJson(_obj(await _send('POST', '/api/v1/intelligence/ask', body: {'question': question})));
 
   @override
   Future<GrievanceSuggestion> suggestGrievance(String description) async => GrievanceSuggestion.fromJson(

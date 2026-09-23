@@ -12,6 +12,8 @@ import { Exception, Fleet, Manifest, dso } from '../api';
 import { c, font, kg, label, num, s } from '../theme';
 import { Badge, Bar, DataUnavailable, ErrorNote, Loading, Metric, MetricStrip, Panel, Region, Table, td, tdMono, useData } from '../ui';
 import { StageRail } from '../components/Situation';
+import { IntelSection } from '../../components/Intelligence';
+import { intel } from '../../api/intelligence';
 import { ActionCard, DecisionGate } from '../components/Gate';
 import { GeodesicNote } from '../components/Manifest';
 import { ruleInfo } from '../components/Exceptions';
@@ -41,6 +43,9 @@ export default function OptimizationPage() {
     <>
       <Panel title="Route & fleet optimization" subtitle="Stage 04 · OR-Tools capacitated vehicle routing">
         <StageRail state={summary?.state} />
+        <IntelSection title="Route and fleet intelligence" subtitle="Geodesic distances — not road distances. Advisory only."
+          fetch={() => intel.dsoRisks(cycle ?? undefined).then(r => r.risks.filter(a => a.type === 'ROUTE_FLEET_RISK'))}
+          emptyWhy="No route or fleet risk in this cycle." />
       </Panel>
 
       {err && <ErrorNote error={err} />}

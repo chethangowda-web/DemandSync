@@ -94,6 +94,14 @@ class FakeApi implements ApiClient {
   }
 
   @override
+  Future<IntelSummary> intelSummary() =>
+      _do('intelSummary', () => IntelSummary.fromJson(const {'cycle': '2026-03', 'insights': []}));
+
+  @override
+  Future<IntelAnswer> intelAsk(String question) =>
+      _do('intelAsk', () => IntelAnswer.fromJson(const {'answer': 'Test answer', 'model': 'rule-intelligence-v1'}));
+
+  @override
   Future<GrievanceSuggestion> suggestGrievance(String description) =>
       _do('suggestGrievance', () => GrievanceSuggestion.fromJson(fixture('grievance_suggest')));
 

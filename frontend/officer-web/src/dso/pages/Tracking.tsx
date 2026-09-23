@@ -12,6 +12,8 @@ import { Manifest, RouteStop, TelemetryPoint, dso } from '../api';
 import { c, dateTime, font, kg, label, num, s } from '../theme';
 import { Badge, DataUnavailable, Loading, Metric, MetricStrip, Panel, Region, Table, td, tdMono, useData } from '../ui';
 import { StageRail } from '../components/Situation';
+import { IntelSection } from '../../components/Intelligence';
+import { intel } from '../../api/intelligence';
 import { GeodesicNote } from '../components/Manifest';
 
 export default function TrackingPage() {
@@ -46,6 +48,9 @@ export default function TrackingPage() {
     <>
       <Panel title="Tracking" subtitle="Stage 06 · planned route versus what has actually been reported">
         <StageRail state={summary?.state} />
+        <IntelSection title="Delivery intelligence" subtitle="Allocated vs dispatched vs received — advisory only"
+          fetch={() => intel.dsoRisks(cycle ?? undefined).then(r => r.risks.filter(a => a.type.startsWith('RECONCILIATION')))}
+          emptyWhy="No delivery variance detected in this cycle." />
       </Panel>
 
       <MetricStrip>

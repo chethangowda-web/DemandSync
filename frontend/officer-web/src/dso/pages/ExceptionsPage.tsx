@@ -11,6 +11,8 @@ import { useCycle } from '../DsoLayout';
 import { c, label, s } from '../theme';
 import { DataUnavailable, Loading, Panel, Region, useData } from '../ui';
 import { StageRail } from '../components/Situation';
+import { IntelSection } from '../../components/Intelligence';
+import { intel } from '../../api/intelligence';
 import { ExceptionDrawer, ExceptionTable, SeverityStrip } from '../components/Exceptions';
 
 const SCOPES = [
@@ -45,6 +47,9 @@ export default function ExceptionsPage() {
     <>
       <Panel title="Exception command centre" subtitle="Everything this cycle's own gates have flagged">
         <StageRail state={summary?.state} />
+        <IntelSection title="Exception intelligence" subtitle="What happened, why it matters, what could be considered — AI resolves nothing"
+          fetch={() => intel.dsoExceptions(cycle ?? undefined).then(r => r.exceptions)}
+          emptyWhy="No exceptions recorded for this cycle." />
       </Panel>
 
       <div style={{ display: 'flex', gap: s(3), alignItems: 'flex-end', flexWrap: 'wrap' }}>

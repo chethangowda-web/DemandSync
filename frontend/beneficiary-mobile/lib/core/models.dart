@@ -326,10 +326,14 @@ class AssistantAnswer {
         generative: (j['generative'] as bool?) ?? false,
       );
 }
-
 class SuggestedTransaction {
-  SuggestedTransaction({required this.id, required this.cycle, required this.commodity, required this.quantityKg,
-      required this.status, required this.at});
+  SuggestedTransaction(
+      {required this.id,
+      required this.cycle,
+      required this.commodity,
+      required this.quantityKg,
+      required this.status,
+      required this.at});
   final String id, cycle, commodity, status;
   final num quantityKg;
   final DateTime at;
@@ -359,13 +363,51 @@ class GrievanceSuggestion {
       );
 }
 
+/// Phase 8: one advisory card from the beneficiary-scoped intelligence summary.
+/// Only the signed-in beneficiary's own records — enforced server-side.
+class IntelCard {
+  IntelCard({required this.type, required this.title, required this.summary, this.recommendation});
+  final String type, title, summary;
+  final String? recommendation;
+
+  factory IntelCard.fromJson(Map<String, dynamic> j) => IntelCard(
+        type: j['type'] as String,
+        title: j['title'] as String,
+        summary: j['summary'] as String,
+        recommendation: _str(j['recommendation']),
+      );
+}
+
+class IntelSummary {
+  IntelSummary({required this.cycle, required this.cards});
+  final String? cycle;
+  final List<IntelCard> cards;
+
+  factory IntelSummary.fromJson(Map<String, dynamic> j) => IntelSummary(
+        cycle: _str(j['cycle']),
+        cards: ((j['insights'] as List?) ?? [])
+            .map((c) => IntelCard.fromJson(c as Map<String, dynamic>))
+            .toList(),
+      );
+}
+
+/// Phase 8: grounded answer from POST /intelligence/ask. Advisory only.
+class IntelAnswer {
+  IntelAnswer({required this.answer, required this.model});
+  final String answer, model;
+
+  factory IntelAnswer.fromJson(Map<String, dynamic> j) => IntelAnswer(
+        answer: j['answer'] as String,
+        model: (j['model'] as String?) ?? 'rule-intelligence-v1',
+      );
+}
+
 class Grievance {
   Grievance({required this.id, required this.category, required this.description, required this.status,
       required this.resolution, required this.createdAt});
   final String id, category, description, status;
   final String? resolution;
   final DateTime createdAt;
-
   factory Grievance.fromJson(Map<String, dynamic> j) => Grievance(
         id: j['grievance_id'] as String,
         category: j['category'] as String,

@@ -11,6 +11,8 @@ import { Manifest, ManifestDetail, dso } from '../api';
 import { c, font, kg, label, num, s } from '../theme';
 import { Badge, DataUnavailable, Drawer, ErrorNote, Loading, Metric, MetricStrip, Panel, Region, useData } from '../ui';
 import { StageRail } from '../components/Situation';
+import { IntelSection } from '../../components/Intelligence';
+import { intel } from '../../api/intelligence';
 import { DecisionGate, ActionCard } from '../components/Gate';
 import { ManifestCard, ManifestDetailView } from '../components/Manifest';
 
@@ -44,6 +46,9 @@ export default function DispatchPage() {
     <>
       <Panel title="Dispatch authorization" subtitle="Stage 05 · validate, seal, authorise, release">
         <StageRail state={summary?.state} />
+        <IntelSection title="Dispatch risk" subtitle="Readiness before your authorisation — advisory only"
+          fetch={() => intel.dsoRisks(cycle ?? undefined).then(r => r.risks.filter(a => a.type === 'DISPATCH_RISK'))}
+          emptyWhy="No dispatch blockers detected in current records." />
       </Panel>
 
       {err && <ErrorNote error={err} />}

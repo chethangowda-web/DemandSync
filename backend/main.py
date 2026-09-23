@@ -12,8 +12,13 @@ from backend.api.beneficiary import router as beneficiary_router
 from backend.api.auth import router as auth_router
 from backend.api.system import router as system_router
 from backend.api.dso import router as dso_router
+from backend.api.inspector import router as inspector_router
+from backend.api.fps import router as fps_router
+from backend.api.auditor import router as auditor_router
+from backend.api.admin import router as admin_router
+from backend.api.intelligence import router as intelligence_router
 from backend.web import router as web_router
-from backend.core.errors import http_exception_handler, validation_exception_handler
+from backend.core.errors import http_exception_handler, validation_exception_handler, unhandled_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi import HTTPException as _HTTPException
 from starlette.exceptions import HTTPException as _StarletteHTTPException
@@ -21,10 +26,17 @@ app.include_router(beneficiary_router)
 app.include_router(auth_router)
 app.include_router(system_router)
 app.include_router(dso_router)
+app.include_router(inspector_router)
+app.include_router(fps_router)
+app.include_router(auditor_router)
+app.include_router(admin_router)
+app.include_router(intelligence_router)
 app.include_router(web_router)
 app.add_exception_handler(_HTTPException, http_exception_handler)
 app.add_exception_handler(_StarletteHTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
+# Last resort: never leak a bare "Internal Server Error" without a stable code.
+app.add_exception_handler(Exception, unhandled_exception_handler)
 
 @app.get("/health")
 def health():

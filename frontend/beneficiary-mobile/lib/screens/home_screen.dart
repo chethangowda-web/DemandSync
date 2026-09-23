@@ -1088,14 +1088,22 @@ List<_TimelineStepData> _rationStatusSteps(Journey? j, HomeData h) {
     atFpsDone,
     collectedDone
   ];
-  int activeIdx = doneList.indexWhere((d) => !d);
+  // The plan-submission step can no longer be acted on once the choice window has closed;
+  // treat it as "missed" rather than "active" so a beneficiary who skipped it doesn't see a
+  // pulsing current-step ring sitting in front of stages that already progressed without them
+  // (allocation/dispatch run at the FPS level and don't wait on any single beneficiary's intent).
+  final windowClosedNoPlan = !planDone && h.cycle?.windowOpen == false;
+  final searchFrom = windowClosedNoPlan ? 1 : 0;
+  int activeIdx = doneList.indexWhere((d) => !d, searchFrom);
   if (activeIdx == -1) activeIdx = 5;
   List<String> states = List.generate(6,
       (i) => i < activeIdx ? 'done' : (i == activeIdx ? 'active' : 'pending'));
   // but if already done, mark done
   for (int i = 0; i < 6; i++) if (doneList[i]) states[i] = 'done';
+  if (windowClosedNoPlan) states[0] = 'missed';
   return [
-    _TimelineStepData('Plan Submitted', at('INTENT_SUBMITTED'), states[0]),
+    _TimelineStepData('Plan Submitted',
+        windowClosedNoPlan ? 'Window closed' : at('INTENT_SUBMITTED'), states[0]),
     _TimelineStepData('Demand Planned', at('DEMAND_PLANNED'), states[1]),
     _TimelineStepData('Allocation', at('ALLOCATED'), states[2]),
     _TimelineStepData('Dispatch', at('DISPATCHED'), states[3]),
@@ -1113,14 +1121,19 @@ class _TimelineStep extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDone = step.state == 'done';
     final isActive = step.state == 'active';
+    final isMissed = step.state == 'missed';
     final color = isDone
         ? const Color(0xFF13795B)
-        : (isActive ? const Color(0xFF1747B0) : const Color(0xFFD9E1EF));
+        : (isActive
+            ? const Color(0xFF1747B0)
+            : (isMissed ? const Color(0xFFB45309) : const Color(0xFFD9E1EF)));
     final icon = isDone
         ? Icons.check_rounded
         : (isActive
             ? Icons.radio_button_checked_rounded
-            : Icons.radio_button_unchecked_rounded);
+            : (isMissed
+                ? Icons.block_rounded
+                : Icons.radio_button_unchecked_rounded));
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
       SizedBox(
           width: 92,
@@ -1133,7 +1146,9 @@ class _TimelineStep extends StatelessWidget {
                         ? const Color(0xFFE3F5EE)
                         : (isActive
                             ? const Color(0xFFE8EFFC)
-                            : const Color(0xFFF1F3F7)),
+                            : (isMissed
+                                ? const Color(0xFFFCF1E3)
+                                : const Color(0xFFF1F3F7))),
                     shape: BoxShape.circle,
                     border: Border.all(color: color, width: 2)),
                 child: Icon(icon,
@@ -1142,14 +1157,16 @@ class _TimelineStep extends StatelessWidget {
                         ? const Color(0xFF13795B)
                         : (isActive
                             ? const Color(0xFF1747B0)
-                            : const Color(0xFF9AA8C3)))),
+                            : (isMissed
+                                ? const Color(0xFFB45309)
+                                : const Color(0xFF9AA8C3))))),
             const SizedBox(height: 6),
             Text(step.label,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: isDone || isActive
+                    color: isDone || isActive || isMissed
                         ? const Color(0xFF0B2A5B)
                         : AppColors.textMuted)),
             Text(step.sub,

@@ -5,6 +5,7 @@ import '../core/api_client.dart';
 import '../core/labels.dart';
 import '../core/models.dart';
 import '../core/theme.dart';
+import '../core/voice.dart';
 import '../widgets/common.dart';
 import 'entitlement_screen.dart';
 
@@ -40,7 +41,9 @@ class _AssistantScreenState extends State<AssistantScreen> {
   final _scroll = ScrollController();
   final List<_Message> _messages = [];
   bool _busy = false;
+  bool _voiceOn = true;
   IntelSummary? _intel;
+  final _voice = VoiceSpeaker();
 
   @override
   void initState() {
@@ -56,12 +59,20 @@ class _AssistantScreenState extends State<AssistantScreen> {
         // Silent: the assistant conversation below remains fully usable.
       }
     });
+    Future.microtask(() {
+      if (mounted) _speak(tr(context).assistantHello);
+    });
+  }
+
+  void _speak(String text) {
+    if (_voiceOn) _voice.speak(text, Localizations.localeOf(context).languageCode);
   }
 
   @override
   void dispose() {
     _controller.dispose();
     _scroll.dispose();
+    _voice.stop();
     super.dispose();
   }
 
@@ -77,7 +88,10 @@ class _AssistantScreenState extends State<AssistantScreen> {
     _scrollDown();
     try {
       final a = await api.ask(question: question, intent: intent, language: lang);
-      if (mounted) setState(() => _messages.add(_Message.assistant(a)));
+      if (mounted) {
+        setState(() => _messages.add(_Message.assistant(a)));
+        _speak(a.answer);
+      }
     } catch (e) {
       if (mounted) setState(() => _messages.add(_Message.failure(errorText(l, e))));
     } finally {
@@ -115,7 +129,16 @@ class _AssistantScreenState extends State<AssistantScreen> {
       ('DISPATCH', l.chipDispatch), ('FPS', l.chipFps), ('CANT_SUBMIT', l.chipCantSubmit),
     ];
     return Scaffold(
-      appBar: AppBar(title: Text(l.assistantTitle)),
+      appBar: AppBar(title: Text(l.assistantTitle), actions: [
+        IconButton(
+          tooltip: _voiceOn ? 'Mute voice' : 'Enable voice',
+          icon: Icon(_voiceOn ? Icons.volume_up_rounded : Icons.volume_off_rounded),
+          onPressed: () {
+            setState(() => _voiceOn = !_voiceOn);
+            if (!_voiceOn) _voice.stop();
+          },
+        ),
+      ]),
       body: SafeArea(
         child: Column(children: [
           Container(
